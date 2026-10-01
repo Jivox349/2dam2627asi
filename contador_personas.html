@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contador de personas</title>
+<style>
+  :root { --blue:#397cf6; --pink:#e65391; --panel:rgba(20,28,44,.88); --muted:#aab5c7; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:#f7f9ff; display:flex; justify-content:center; align-items:center; padding:32px 18px;
+    background:
+      linear-gradient(120deg,rgba(10,18,34,.30),rgba(10,18,34,.50)),
+      url("https://www.barcelo.com/guia-turismo/wp-content/uploads/2024/09/ok-centros-comerciales-madrid.jpg") center/cover fixed,
+      linear-gradient(135deg,#536f94,#d68d7b);
+  }
+  .app { width:min(940px,100%); }
+  header { text-align:center; margin-bottom:28px; text-shadow:0 2px 16px #142033; }
+  .people-icon { font-size:38px; line-height:1; }
+  h1 { font-size:clamp(2rem,5vw,3.1rem); margin:10px 0 5px; letter-spacing:-1.3px; }
+  header p { margin:0; color:#edf1fb; font-size:clamp(1rem,2.4vw,1.2rem); }
+  .cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+  .card { background:var(--panel); border:1px solid rgba(255,255,255,.2); border-radius:24px;
+    padding:24px; backdrop-filter:blur(16px); box-shadow:0 18px 50px rgba(0,0,0,.22); }
+  .card.men { border-top:3px solid var(--blue); }
+  .card.women { border-top:3px solid var(--pink); }
+  .person-icon { font-size:34px; text-align:center; }
+  h2 { text-align:center; font-size:1.35rem; margin:5px 0 14px; }
+  .count { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.09);
+    border-radius:16px; padding:12px; text-align:center; font-size:3.4rem; font-weight:750;
+    font-variant-numeric:tabular-nums; margin-bottom:16px; }
+  .controls { display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px; }
+  button { border:0; border-radius:12px; padding:13px 10px; color:white; font:600 1rem inherit;
+    font-size:1rem; font-weight:650; cursor:pointer; transition:transform .12s,filter .12s; }
+  button:hover { filter:brightness(1.1); transform:translateY(-1px); }
+  button:active { transform:translateY(0); }
+  .men .plus { background:var(--blue); } .women .plus { background:var(--pink); }
+  .minus { background:#344157; } .manual-toggle { background:transparent; border:1px solid #718099; }
+  .manual { display:flex; gap:8px; margin-top:16px; }
+  input { min-width:0; flex:1; padding:12px 14px; color:white; background:rgba(255,255,255,.08);
+    border:1px solid #53627a; border-radius:11px; font:inherit; outline:none; }
+  input:focus { border-color:#b8c8e7; box-shadow:0 0 0 3px rgba(184,200,231,.12); }
+  input::placeholder { color:#aab5c7; }
+  .men .add { background:var(--blue); } .women .add { background:var(--pink); }
+  .total { margin:22px auto 0; padding:17px 22px; display:flex; align-items:center; justify-content:center;
+    gap:18px; background:var(--panel); border:1px solid rgba(255,255,255,.2); border-radius:18px;
+    backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.18); }
+  .total-label { font-weight:600; } .total-number { font-size:2rem; font-weight:800; min-width:48px; text-align:center; }
+  .gender-stats { margin:16px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .gender-stat { padding:14px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.09);
+    border-radius:14px; text-align:center; }
+  .gender-stat .stat-label { display:block; font-weight:650; margin-bottom:5px; }
+  .gender-stat .stat-value { font-size:1.45rem; font-weight:800; }
+  .reset { display:block; margin:14px auto 0; background:#8b3f4f; }
+  .separator { height:32px; width:1px; background:#8a96a9; }
+  .capacity {
+    margin:0 auto 22px; padding:18px 22px; display:flex; align-items:center; justify-content:center;
+    gap:12px; flex-wrap:wrap; background:var(--panel); border:1px solid rgba(255,255,255,.2);
+    border-radius:18px; backdrop-filter:blur(16px); box-shadow:0 12px 30px rgba(0,0,0,.18);
+  }
+  .capacity-label { font-weight:650; }
+  .capacity input { width:150px; flex:none; }
+  .capacity button { background:#53627a; }
+  button:disabled, input:disabled { opacity:.45; cursor:not-allowed; }
+  button:disabled:hover { filter:none; transform:none; }
+  .notice { min-height:20px; text-align:center; margin-top:12px; color:#fff; font-size:.9rem; }
+  @media(max-width:650px) {
+    .cards { grid-template-columns:1fr; gap:16px; }
+    .card { padding:20px; }
+    header { margin-bottom:20px; }
+    .total { gap:12px; }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="people-icon" aria-hidden="true">♙♙</div>
+    <h1>Contador de Personas</h1>
+    <p>Controla fácilmente el número de hombres y mujeres</p>
+  </header>
+
+  <section class="capacity" aria-label="Aforo máximo">
+    <span class="capacity-label">Aforo máximo:</span>
+    <input type="number" id="capacity-input" min="1" step="1" placeholder="Ej. 100" aria-label="Aforo máximo">
+    <button type="button" id="capacity-button">Establecer aforo</button>
+    <span id="capacity-status" aria-live="polite">Sin aforo establecido</span>
+  </section>
+
+  <section class="cards" aria-label="Contadores">
+    <article class="card men" data-type="hombres">
+      <div class="person-icon" aria-hidden="true">♂</div>
+      <h2>Hombres</h2>
+      <div class="count" id="hombres-count" aria-live="polite">0</div>
+      <div class="controls">
+        <button class="plus" data-action="plus" aria-label="Sumar un hombre">+1</button>
+        <button class="minus" data-action="minus" aria-label="Restar un hombre">-1</button>
+        <button class="manual-toggle" data-action="focus">Añadir…</button>
+      </div>
+      <form class="manual" data-form="hombres">
+        <input type="number" min="0" step="1" placeholder="Número de personas" aria-label="Número de hombres" required>
+        <button class="add" type="submit">Añadir</button>
+      </form>
+    </article>
+
+    <article class="card women" data-type="mujeres">
+      <div class="person-icon" aria-hidden="true">♀</div>
+      <h2>Mujeres</h2>
+      <div class="count" id="mujeres-count" aria-live="polite">0</div>
+      <div class="controls">
+        <button class="plus" data-action="plus" aria-label="Sumar una mujer">+1</button>
+        <button class="minus" data-action="minus" aria-label="Restar una mujer">-1</button>
+        <button class="manual-toggle" data-action="focus">Añadir…</button>
+      </div>
+      <form class="manual" data-form="mujeres">
+        <input type="number" min="0" step="1" placeholder="Número de personas" aria-label="Número de mujeres" required>
+        <button class="add" type="submit">Añadir</button>
+      </form>
+    </article>
+  </section>
+
+  <section class="total" aria-label="Total de personas">
+    <span aria-hidden="true">👥</span>
+    <span class="total-label">Total de personas</span>
+    <span class="separator"></span>
+    <span class="total-number" id="total-count" aria-live="polite">0</span>
+  </section>
+
+  <section class="gender-stats" aria-label="Porcentaje por género">
+    <div class="gender-stat">
+      <span class="stat-label">♂ Hombres</span>
+      <span class="stat-value" id="hombres-percent">0%</span>
+    </div>
+    <div class="gender-stat">
+      <span class="stat-label">♀ Mujeres</span>
+      <span class="stat-value" id="mujeres-percent">0%</span>
+    </div>
+  </section>
+
+  <button type="button" class="reset" id="reset-button">🗑️ Vaciar contador</button>
+  <div class="notice" id="notice" role="status"></div>
+</main>
+
+<script>
+  const counts = { hombres: 0, mujeres: 0 };
+  let capacity = null;
+
+  const notice = document.getElementById("notice");
+  const capacityInput = document.getElementById("capacity-input");
+  const capacityButton = document.getElementById("capacity-button");
+  const capacityStatus = document.getElementById("capacity-status");
+
+  function getTotal() {
+    return counts.hombres + counts.mujeres;
+  }
+
+  function isFull() {
+    return capacity !== null && getTotal() >= capacity;
+  }
+
+  function render() {
+    const total = getTotal();
+
+    document.getElementById("hombres-count").textContent = counts.hombres;
+    document.getElementById("mujeres-count").textContent = counts.mujeres;
+    document.getElementById("total-count").textContent = total;
+
+    const hombresPercent = total === 0 ? 0 : Math.round((counts.hombres / total) * 100);
+    const mujeresPercent = total === 0 ? 0 : Math.round((counts.mujeres / total) * 100);
+
+    document.getElementById("hombres-percent").textContent = `${hombresPercent}%`;
+    document.getElementById("mujeres-percent").textContent = `${mujeresPercent}%`;
+
+    if (capacity === null) {
+      capacityStatus.textContent = "Sin aforo establecido";
+    } else {
+      capacityStatus.textContent = `${total} / ${capacity} personas`;
+    }
+
+    // Solo se bloquean las opciones para añadir personas.
+    // Los botones de restar siguen funcionando aunque el aforo esté lleno.
+    document.getElementById("reset-button").addEventListener("click", () => {
+    if (getTotal() === 0) {
+      notice.textContent = "El contador ya está vacío.";
+      return;
+    }
+
+    const confirmed = confirm("¿Seguro que quieres vaciar todos los contadores?");
+    if (!confirmed) return;
+
+    counts.hombres = 0;
+    counts.mujeres = 0;
+    notice.textContent = "Contador vaciado correctamente.";
+    render();
+  });
+
+  document.querySelectorAll(".card").forEach(card => {
+      card.querySelector('[data-action="plus"]').disabled = isFull();
+      card.querySelector('input').disabled = isFull();
+      card.querySelector('.add').disabled = isFull();
+    });
+  }
+
+  capacityButton.addEventListener("click", () => {
+    const value = Number(capacityInput.value);
+
+    if (!Number.isSafeInteger(value) || value < 1) {
+      notice.textContent = "Introduce un aforo entero superior a 0.";
+      return;
+    }
+
+    if (value < getTotal()) {
+      notice.textContent = `El aforo no puede ser inferior al número actual de personas (${getTotal()}).`;
+      return;
+    }
+
+    capacity = value;
+    notice.textContent = "";
+    render();
+  });
+
+  document.getElementById("reset-button").addEventListener("click", () => {
+    if (getTotal() === 0) {
+      notice.textContent = "El contador ya está vacío.";
+      return;
+    }
+
+    const confirmed = confirm("¿Seguro que quieres vaciar todos los contadores?");
+    if (!confirmed) return;
+
+    counts.hombres = 0;
+    counts.mujeres = 0;
+    notice.textContent = "Contador vaciado correctamente.";
+    render();
+  });
+
+  document.querySelectorAll(".card").forEach(card => {
+    const type = card.dataset.type;
+
+    card.querySelectorAll("button[data-action]").forEach(button => {
+      button.addEventListener("click", () => {
+        const action = button.dataset.action;
+
+        if (action === "plus") {
+          if (isFull()) {
+            notice.textContent = "El aforo está completo. Solo puedes restar personas.";
+            return;
+          }
+
+          counts[type]++;
+          notice.textContent = "";
+        } else if (action === "minus") {
+          if (counts[type] > 0) {
+            counts[type]--;
+            notice.textContent = "";
+          } else {
+            notice.textContent = "El contador no puede ser inferior a 0.";
+          }
+        } else if (action === "focus") {
+          if (isFull()) {
+            notice.textContent = "El aforo está completo. Solo puedes restar personas.";
+            return;
+          }
+
+          card.querySelector("input").focus();
+          return;
+        }
+
+        render();
+      });
+    });
+
+    card.querySelector("form").addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (isFull()) {
+        notice.textContent = "El aforo está completo. Solo puedes restar personas.";
+        return;
+      }
+
+      const input = card.querySelector("input");
+      const amount = Number(input.value);
+
+      if (!Number.isSafeInteger(amount) || amount < 0 || input.value.trim() === "") {
+        notice.textContent = "Introduce un número entero igual o superior a 0.";
+        return;
+      }
+
+      if (capacity !== null && getTotal() + amount > capacity) {
+        const remaining = capacity - getTotal();
+        notice.textContent = `No puedes añadir ${amount}. Solo quedan ${remaining} plazas disponibles.`;
+        return;
+      }
+
+      counts[type] += amount;
+      input.value = "";
+      notice.textContent = "";
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
