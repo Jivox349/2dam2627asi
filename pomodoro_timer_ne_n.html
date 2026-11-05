@@ -1,0 +1,757 @@
+<title>Pomodoro Estricto | Claro / Oscuro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Tema Oscuro (por defecto) */
+            --bg-body: #030303;
+            --bg-panel: linear-gradient(145deg, #0a0a0c, #050505);
+            --text-main: #ffffff;
+            --text-secondary: #9ca3af;
+            --pill-text: rgba(255, 255, 255, 0.2);
+            --pill-border: rgba(255, 255, 255, 0.05);
+            --pill-bg: rgba(255, 255, 255, 0.02);
+            --accent-rgb: 0, 243, 255;
+            --accent: rgb(var(--accent-rgb));
+            --accent-glow-bg: rgba(var(--accent-rgb), 0.05);
+            --ring-track: #141414;
+            --panel-border: rgba(255, 255, 255, 0.03);
+            --panel-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --btn-bg: #080808;
+            --btn-border: #1f2937;
+            --ambient-opacity: 0.03;
+            --text-shadow-active: 0 0 8px rgba(var(--accent-rgb), 0.6);
+            --box-shadow-active: 0 0 15px rgba(var(--accent-rgb), 0.2), inset 0 0 8px rgba(var(--accent-rgb), 0.1);
+        }
+
+        [data-theme="light"] {
+            /* Tema Claro */
+            --bg-body: #f3f4f6;
+            --bg-panel: #ffffff;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --pill-text: #9ca3af;
+            --pill-border: #e5e7eb;
+            --pill-bg: #f9fafb;
+            --accent-rgb: 0, 102, 255;
+            --accent: rgb(var(--accent-rgb));
+            --accent-glow-bg: rgba(var(--accent-rgb), 0.05);
+            --ring-track: #e5e7eb;
+            --panel-border: #d1d5db;
+            --panel-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --btn-bg: #ffffff;
+            --btn-border: #d1d5db;
+            --ambient-opacity: 0;
+            --text-shadow-active: none;
+            --box-shadow-active: 0 4px 6px -1px rgba(var(--accent-rgb), 0.1), 0 2px 4px -1px rgba(var(--accent-rgb), 0.06);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ambient-light {
+            opacity: var(--ambient-opacity);
+            transition: opacity 0.4s ease;
+            background-color: var(--accent);
+        }
+
+        .glass-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--panel-shadow);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        /* Efectos Neón / Resaltado */
+        .neon-text {
+            color: var(--accent);
+            transition: color 0.4s ease, text-shadow 0.4s ease;
+        }
+        
+        [data-theme="dark"] .neon-text {
+            text-shadow: 0 0 15px rgba(var(--accent-rgb), 0.4), 0 0 30px rgba(var(--accent-rgb), 0.2);
+        }
+
+        /* Pastillas LED superiores */
+        .pill {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--pill-text);
+            border: 1px solid var(--pill-border);
+            background: var(--pill-bg);
+        }
+        
+        .pill.active {
+            color: var(--accent);
+            background: var(--accent-glow-bg);
+            border-color: var(--accent);
+            box-shadow: var(--box-shadow-active);
+            text-shadow: var(--text-shadow-active);
+        }
+
+        /* Anillo SVG */
+        .ring-track {
+            stroke: var(--ring-track);
+            transition: stroke 0.4s ease;
+        }
+        .ring-progress {
+            stroke: var(--accent);
+            transition: stroke-dashoffset 1s linear, stroke 0.4s ease;
+        }
+        [data-theme="dark"] .ring-progress {
+            filter: drop-shadow(0 0 12px rgba(var(--accent-rgb), 0.3));
+        }
+
+        /* Botones Inferiores */
+        .control-btn {
+            background-color: var(--btn-bg);
+            border-color: var(--btn-border);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .control-btn:hover {
+            color: var(--accent);
+        }
+        .control-btn.active-glow {
+            color: var(--accent);
+            background-color: var(--accent-glow-bg);
+            border-color: var(--accent);
+        }
+        [data-theme="dark"] .control-btn.active-glow {
+            box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.15), inset 0 0 15px rgba(var(--accent-rgb), 0.05);
+            border-color: rgba(var(--accent-rgb), 0.4);
+        }
+        [data-theme="light"] .control-btn.active-glow {
+            box-shadow: var(--box-shadow-active);
+        }
+
+        /* Estilos del Modal */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 100;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        .input-field {
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body data-theme="dark" class="min-h-screen flex items-center justify-center p-6 relative">
+
+    <!-- Botón Ajustes -->
+    <button id="settings-toggle" class="absolute top-6 left-6 p-3 rounded-full border control-btn z-50 shadow-lg outline-none hover:scale-105" aria-label="Ajustes">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+    </button>
+
+    <!-- Switch de Tema Claro/Oscuro -->
+    <button id="theme-toggle" class="absolute top-6 right-6 p-3 rounded-full border control-btn z-50 shadow-lg outline-none hover:scale-105" aria-label="Cambiar tema">
+        <!-- Icono Sol (para cambiar a modo claro) -->
+        <svg id="icon-sun" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <!-- Icono Luna (para cambiar a modo oscuro) -->
+        <svg id="icon-moon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
+
+    <!-- Luz ambiental de fondo -->
+    <div class="ambient-light absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full blur-[150px] pointer-events-none"></div>
+
+    <div class="glass-panel w-full max-w-lg rounded-[2.5rem] p-10 sm:p-14 relative z-10 flex flex-col items-center">
+        
+        <div class="flex justify-center gap-4 sm:gap-6 w-full mb-12">
+            <div id="ind-work" class="pill active px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.2em]">
+                TRABAJO
+            </div>
+            <div id="ind-short" class="pill px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.2em]">
+                CORTO
+            </div>
+            <div id="ind-long" class="pill px-5 py-2.5 rounded-full text-xs font-semibold tracking-[0.2em]">
+                LARGO
+            </div>
+        </div>
+
+        <div class="relative w-72 h-72 flex items-center justify-center my-8">
+            <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <!-- Círculo -->
+                <g class="shape-group" id="group-circle">
+                    <circle class="ring-track" cx="50" cy="50" r="47" fill="none" stroke-width="1.5" />
+                    <circle id="progress-circle" class="ring-progress" cx="50" cy="50" r="47" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="295.31" stroke-dashoffset="0" />
+                </g>
+                <!-- Cuadrado Redondeado -->
+                <g class="shape-group hidden" id="group-square">
+                    <path class="ring-track" d="M 95,50 L 95,75 A 20,20 0 0,1 75,95 L 25,95 A 20,20 0 0,1 5,75 L 5,25 A 20,20 0 0,1 25,5 L 75,5 A 20,20 0 0,1 95,25 Z" fill="none" stroke-width="1.5" />
+                    <path id="progress-square" class="ring-progress" d="M 95,50 L 95,75 A 20,20 0 0,1 75,95 L 25,95 A 20,20 0 0,1 5,75 L 5,25 A 20,20 0 0,1 25,5 L 75,5 A 20,20 0 0,1 95,25 Z" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="325.66" stroke-dashoffset="0" />
+                </g>
+                <!-- Diamante -->
+                <g class="shape-group hidden" id="group-diamond">
+                    <polygon class="ring-track" points="95,50 50,95 5,50 50,5" fill="none" stroke-width="1.5" />
+                    <polygon id="progress-diamond" class="ring-progress" points="95,50 50,95 5,50 50,5" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="254.56" stroke-dashoffset="0" />
+                </g>
+            </svg>
+            
+            <div id="timer-display" class="text-[5rem] font-mono font-light neon-text z-10 select-none tracking-tighter">
+                25:00
+            </div>
+        </div>
+
+        <div class="flex justify-center items-center gap-10 mt-12 w-full">
+            <button id="start-btn" onclick="toggleTimer()" class="control-btn border w-20 h-20 rounded-full transition-all duration-300 flex items-center justify-center group outline-none">
+                <svg id="play-icon" class="w-8 h-8 ml-1 transform group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pause-icon" class="w-8 h-8 hidden transform group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            
+            <button onclick="resetTimer()" class="control-btn border w-16 h-16 rounded-full transition-all duration-300 flex items-center justify-center outline-none">
+                <svg class="w-6 h-6 hover:-rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+        </div>
+
+        <div class="mt-14 text-[var(--text-secondary)] text-xs tracking-[0.15em] font-semibold flex items-center gap-3 transition-colors duration-400">
+            CICLOS COMPLETADOS 
+            <span id="cycle-count" class="text-[var(--accent)] text-base font-mono bg-[var(--accent-glow-bg)] px-3 py-1 rounded-md border border-[var(--accent)]/20 transition-colors duration-400">0</span>
+        </div>
+    </div>
+
+    <!-- Modal de Ajustes / Perfiles -->
+    <div id="settings-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4">
+        <div class="modal-content glass-panel w-full max-w-md rounded-[2rem] p-8 relative flex flex-col shadow-2xl">
+            <h2 class="text-xl font-bold mb-6 text-[var(--text-main)] text-center tracking-wide">Perfiles Pomodoro</h2>
+            
+            <div class="flex flex-col gap-6">
+                <!-- Selector de Perfil -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] text-[var(--text-secondary)] tracking-[0.2em] uppercase font-semibold">Perfil guardado</label>
+                    <select id="profile-select" class="input-field w-full px-4 py-3 rounded-xl appearance-none cursor-pointer font-medium text-sm">
+                        <option value="default">Clásico (25/5/15)</option>
+                    </select>
+                </div>
+
+                <!-- Nombre -->
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] text-[var(--text-secondary)] tracking-[0.2em] uppercase font-semibold">Nombre del perfil</label>
+                    <input type="text" id="profile-name" placeholder="Ej: Estudio Intenso" class="input-field w-full px-4 py-3 rounded-xl font-medium text-sm">
+                </div>
+
+                <!-- Entradas de Apariencia -->
+                <div class="grid grid-cols-2 gap-3 mt-1">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] text-[var(--text-secondary)] tracking-[0.2em] uppercase font-semibold">Color del Tema</label>
+                        <select id="profile-color" class="input-field w-full px-3 py-2 rounded-lg appearance-none cursor-pointer font-medium text-sm">
+                            <option value="cyan">Azul Neón</option>
+                            <option value="pink">Rosa Neón</option>
+                            <option value="green">Verde Neón</option>
+                            <option value="orange">Naranja</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] text-[var(--text-secondary)] tracking-[0.2em] uppercase font-semibold">Forma</label>
+                        <select id="profile-shape" class="input-field w-full px-3 py-2 rounded-lg appearance-none cursor-pointer font-medium text-sm">
+                            <option value="circle">Círculo</option>
+                            <option value="square">Cuadrado Redondeado</option>
+                            <option value="diamond">Diamante</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Entradas de Tiempos -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] text-[var(--text-secondary)] tracking-widest uppercase font-semibold text-center">Trabajo</label>
+                        <input type="number" id="profile-work" min="1" max="120" value="25" class="input-field w-full px-2 py-2 rounded-lg text-center font-mono text-sm">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] text-[var(--text-secondary)] tracking-widest uppercase font-semibold text-center">Corto</label>
+                        <input type="number" id="profile-short" min="1" max="60" value="5" class="input-field w-full px-2 py-2 rounded-lg text-center font-mono text-sm">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[10px] text-[var(--text-secondary)] tracking-widest uppercase font-semibold text-center">Largo</label>
+                        <input type="number" id="profile-long" min="1" max="60" value="15" class="input-field w-full px-2 py-2 rounded-lg text-center font-mono text-sm">
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="flex justify-between mt-2 gap-3">
+                    <button id="btn-delete-profile" class="flex-1 px-4 py-3 rounded-xl border border-red-500/40 text-red-500 hover:bg-red-500/10 transition-colors hidden font-semibold text-xs tracking-wider uppercase">Borrar</button>
+                    <button id="btn-save-profile" class="flex-1 px-4 py-3 rounded-xl border border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent-glow-bg)] transition-colors font-semibold text-xs tracking-wider uppercase">Guardar Perfil</button>
+                </div>
+            </div>
+            
+            <!-- Cerrar -->
+            <button id="btn-close-modal" class="absolute top-6 right-6 text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Reproductor de Música Flotante (Abajo a la Derecha) -->
+    <div id="music-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 transition-all duration-300">
+        <!-- Panel Desplegable -->
+        <div id="music-panel" class="hidden glass-panel rounded-2xl p-4 flex flex-col gap-3 w-80 shadow-2xl origin-bottom-right transition-all">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-semibold tracking-widest uppercase text-[var(--text-secondary)]">Reproductor YouTube</span>
+                <button id="close-music-panel" class="text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="flex gap-2 relative">
+                <input type="text" id="youtube-url" placeholder="Enlace de YouTube..." class="input-field flex-1 px-3 py-2 rounded-lg text-xs font-medium focus:ring-1 focus:ring-[var(--accent)]">
+                <button id="load-youtube" class="control-btn px-4 py-2 rounded-lg border text-xs font-bold tracking-wider hover:bg-[var(--accent-glow-bg)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all">PLAY</button>
+            </div>
+            <div id="youtube-error" class="hidden text-red-500 text-[10px] font-semibold px-1">Enlace no válido. Usa un enlace de YouTube.</div>
+            <div id="youtube-container" class="w-full aspect-video bg-black rounded-lg overflow-hidden border border-[var(--panel-border)] hidden">
+                <iframe id="youtube-iframe" width="100%" height="100%" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+        
+        <!-- Botón Flotante -->
+        <button id="toggle-music" class="w-14 h-14 rounded-full border control-btn shadow-lg flex items-center justify-center outline-none hover:scale-105 hover:text-[var(--accent)] hover:border-[var(--accent)] hover:bg-[var(--accent-glow-bg)] transition-all" aria-label="Abrir reproductor">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+        </button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuración y variables globales para persistencia
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pomodoro-app';
+        let db, auth, userId;
+        
+        let profiles = [
+            { id: 'default', name: 'Clásico (25/5/15)', work: 25, short: 5, long: 15, color: 'cyan', shape: 'circle' }
+        ];
+
+        // --- INICIALIZACIÓN BASE DE DATOS (FIRESTORE) ---
+        try {
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+            if (firebaseConfig) {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                const initAuth = async () => {
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                        userId = auth.currentUser?.uid;
+                        if (userId) loadProfilesFromFirestore();
+                    } catch (e) {
+                        console.error("Error de autenticación", e);
+                    }
+                };
+                initAuth();
+            }
+        } catch (e) {
+            console.error("Entorno sin DB en la nube. Usando sólo perfiles en memoria.");
+        }
+
+        function loadProfilesFromFirestore() {
+            if (!userId || !db) return;
+            const profilesRef = collection(db, 'artifacts', appId, 'users', userId, 'profiles');
+            
+            onSnapshot(profilesRef, (snapshot) => {
+                const remoteProfiles = [];
+                snapshot.forEach(doc => {
+                    remoteProfiles.push({ id: doc.id, ...doc.data() });
+                });
+                
+                profiles = [
+                    { id: 'default', name: 'Clásico (25/5/15)', work: 25, short: 5, long: 15, color: 'cyan', shape: 'circle' },
+                    ...remoteProfiles
+                ];
+                renderProfilesDropdown();
+            }, (error) => {
+                console.error("Error cargando perfiles:", error);
+            });
+        }
+
+        async function saveProfileToFirestore(profile) {
+            if (!userId || !db) return;
+            try {
+                const profileRef = doc(db, 'artifacts', appId, 'users', userId, 'profiles', profile.id);
+                await setDoc(profileRef, profile);
+            } catch (e) {
+                console.error("Error guardando perfil en Firestore:", e);
+            }
+        }
+
+        async function deleteProfileFromFirestore(profileId) {
+            if (!userId || !db) return;
+            try {
+                const profileRef = doc(db, 'artifacts', appId, 'users', userId, 'profiles', profileId);
+                await deleteDoc(profileRef);
+            } catch (e) {
+                console.error("Error borrando perfil en Firestore:", e);
+            }
+        }
+
+        // --- TEMA CLARO / OSCURO Y COLORES ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const iconSun = document.getElementById('icon-sun');
+        const iconMoon = document.getElementById('icon-moon');
+
+        const colorThemes = {
+            cyan: { dark: '0, 243, 255', light: '0, 102, 255' },
+            pink: { dark: '255, 0, 255', light: '200, 0, 150' },
+            green: { dark: '0, 255, 0', light: '0, 153, 0' },
+            orange: { dark: '255, 153, 0', light: '230, 115, 0' }
+        };
+
+        function applyThemeColor() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const selectEl = document.getElementById('profile-select');
+            const currentProfileId = selectEl ? selectEl.value : 'default';
+            const profile = profiles.find(p => p.id === currentProfileId) || profiles[0];
+            const colorKey = profile.color || 'cyan';
+            
+            const rgbValue = colorThemes[colorKey] ? colorThemes[colorKey][currentTheme] : colorThemes['cyan'][currentTheme];
+            document.body.style.setProperty('--accent-rgb', rgbValue);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', newTheme);
+            
+            if (newTheme === 'light') {
+                iconSun.classList.add('hidden');
+                iconMoon.classList.remove('hidden');
+            } else {
+                iconMoon.classList.add('hidden');
+                iconSun.classList.remove('hidden');
+            }
+            applyThemeColor();
+        });
+
+
+        // --- LÓGICA POMODORO ---
+        let MODES = {
+            WORK: { time: 25 * 60, id: 'work' },
+            SHORT: { time: 5 * 60, id: 'short' },
+            LONG: { time: 15 * 60, id: 'long' }
+        };
+
+        let currentMode = MODES.WORK;
+        let timeLeft = currentMode.time;
+        let isRunning = false;
+        let timerInterval = null;
+        let cycles = 0;
+
+        const display = document.getElementById('timer-display');
+        let activeRing = document.getElementById('progress-circle');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const startBtn = document.getElementById('start-btn');
+        const cycleDisplay = document.getElementById('cycle-count');
+        
+        const shapeCircumferences = {
+            circle: 295.31,
+            square: 325.66,
+            diamond: 254.56
+        };
+        let circumference = shapeCircumferences.circle; 
+
+
+        // --- LÓGICA DEL MODAL Y PERFILES ---
+        const modal = document.getElementById('settings-modal');
+        const btnSettings = document.getElementById('settings-toggle');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const selectProfile = document.getElementById('profile-select');
+        const inputName = document.getElementById('profile-name');
+        const inputWork = document.getElementById('profile-work');
+        const inputShort = document.getElementById('profile-short');
+        const inputLong = document.getElementById('profile-long');
+        const btnSaveProfile = document.getElementById('btn-save-profile');
+        const btnDeleteProfile = document.getElementById('btn-delete-profile');
+
+        btnSettings.addEventListener('click', () => modal.classList.add('open'));
+        btnCloseModal.addEventListener('click', () => modal.classList.remove('open'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('open'); // Cierra si clickeas fuera
+        });
+
+        function renderProfilesDropdown() {
+            const currentSelection = selectProfile.value;
+            selectProfile.innerHTML = '';
+            
+            profiles.forEach(prof => {
+                const opt = document.createElement('option');
+                opt.value = prof.id;
+                opt.textContent = prof.name;
+                selectProfile.appendChild(opt);
+            });
+
+            if (profiles.some(p => p.id === currentSelection)) {
+                selectProfile.value = currentSelection;
+            } else {
+                selectProfile.value = 'default';
+            }
+            handleSelectChange();
+        }
+
+        function handleSelectChange() {
+            const selectedId = selectProfile.value;
+            const profile = profiles.find(p => p.id === selectedId) || profiles[0];
+            
+            inputName.value = profile.id === 'default' ? '' : profile.name;
+            inputWork.value = profile.work;
+            inputShort.value = profile.short;
+            inputLong.value = profile.long;
+            document.getElementById('profile-color').value = profile.color || 'cyan';
+            document.getElementById('profile-shape').value = profile.shape || 'circle';
+
+            // Oculta el botón de borrar si es el perfil predeterminado
+            if (profile.id === 'default') {
+                btnDeleteProfile.classList.add('hidden');
+            } else {
+                btnDeleteProfile.classList.remove('hidden');
+            }
+            
+            applyProfile(profile);
+        }
+
+        selectProfile.addEventListener('change', handleSelectChange);
+
+        btnSaveProfile.addEventListener('click', async () => {
+            const name = inputName.value.trim() || `Perfil ${profiles.length}`;
+            const work = parseInt(inputWork.value) || 25;
+            const short = parseInt(inputShort.value) || 5;
+            const long = parseInt(inputLong.value) || 15;
+            const color = document.getElementById('profile-color').value;
+            const shape = document.getElementById('profile-shape').value;
+            let id = selectProfile.value;
+
+            // Si modificamos el Default, creamos uno nuevo
+            if (id === 'default') {
+                id = 'profile_' + Date.now();
+            }
+
+            const newProfile = { id, name, work, short, long, color, shape };
+            
+            const existingIndex = profiles.findIndex(p => p.id === id);
+            if (existingIndex >= 0) {
+                profiles[existingIndex] = newProfile;
+            } else {
+                profiles.push(newProfile);
+            }
+            
+            renderProfilesDropdown();
+            selectProfile.value = id;
+            handleSelectChange();
+            
+            await saveProfileToFirestore(newProfile);
+            modal.classList.remove('open');
+        });
+
+        btnDeleteProfile.addEventListener('click', async () => {
+            const id = selectProfile.value;
+            if (id === 'default') return;
+
+            profiles = profiles.filter(p => p.id !== id);
+            renderProfilesDropdown();
+            
+            await deleteProfileFromFirestore(id);
+        });
+
+        function applyProfile(profile) {
+            const wasRunning = isRunning;
+            if (wasRunning) window.toggleTimer(); 
+
+            MODES.WORK.time = profile.work * 60;
+            MODES.SHORT.time = profile.short * 60;
+            MODES.LONG.time = profile.long * 60;
+
+            applyThemeColor();
+
+            // Configurar forma activa
+            const shapeId = profile.shape || 'circle';
+            document.querySelectorAll('.shape-group').forEach(g => g.classList.add('hidden'));
+            
+            const activeGroup = document.getElementById(`group-${shapeId}`);
+            if (activeGroup) activeGroup.classList.remove('hidden');
+            
+            activeRing = document.getElementById(`progress-${shapeId}`);
+            circumference = shapeCircumferences[shapeId];
+
+            // Actualiza la fase actual directamente con los nuevos tiempos
+            currentMode = MODES[currentMode.id.toUpperCase()];
+            timeLeft = currentMode.time;
+            
+            updateUI();
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateUI() {
+            display.textContent = formatTime(timeLeft);
+            
+            const progress = timeLeft / currentMode.time;
+            activeRing.style.strokeDashoffset = circumference - (progress * circumference);
+            
+            document.querySelectorAll('.pill').forEach(el => el.classList.remove('active'));
+            document.getElementById(`ind-${currentMode.id}`).classList.add('active');
+            
+            cycleDisplay.textContent = cycles;
+        }
+
+        function playBeep() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const playOscillator = (freq, startTime, duration) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime + startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+                osc.start(ctx.currentTime + startTime);
+                osc.stop(ctx.currentTime + startTime + duration);
+            };
+            playOscillator(880, 0, 0.2); 
+            playOscillator(1046.5, 0.3, 0.4); 
+        }
+
+        function autoAdvance() {
+            if (currentMode === MODES.WORK) {
+                cycles++;
+                if (cycles > 0 && cycles % 4 === 0) {
+                    currentMode = MODES.LONG;
+                } else {
+                    currentMode = MODES.SHORT;
+                }
+            } else {
+                currentMode = MODES.WORK;
+            }
+            timeLeft = currentMode.time;
+            updateUI();
+        }
+
+        // Se exponen las funciones a 'window' para que funcionen con los botones (onclick) en un <script type="module">
+        window.toggleTimer = function() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                startBtn.classList.remove('active-glow');
+            } else {
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        playBeep();
+                        autoAdvance();
+                        window.toggleTimer();
+                    }
+                    updateUI();
+                }, 1000);
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                startBtn.classList.add('active-glow');
+            }
+            isRunning = !isRunning;
+        };
+
+        window.resetTimer = function() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = currentMode.time;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            startBtn.classList.remove('active-glow');
+            updateUI();
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR DE MÚSICA ---
+        const musicPanel = document.getElementById('music-panel');
+        const toggleMusicBtn = document.getElementById('toggle-music');
+        const closeMusicBtn = document.getElementById('close-music-panel');
+        const loadYoutubeBtn = document.getElementById('load-youtube');
+        const youtubeUrlInput = document.getElementById('youtube-url');
+        const youtubeContainer = document.getElementById('youtube-container');
+        const youtubeIframe = document.getElementById('youtube-iframe');
+        const youtubeError = document.getElementById('youtube-error');
+
+        toggleMusicBtn.addEventListener('click', () => {
+            musicPanel.classList.toggle('hidden');
+        });
+
+        closeMusicBtn.addEventListener('click', () => {
+            musicPanel.classList.add('hidden');
+        });
+
+        loadYoutubeBtn.addEventListener('click', () => {
+            const url = youtubeUrlInput.value.trim();
+            youtubeError.classList.add('hidden');
+            
+            if (!url) return;
+            
+            const videoId = extractYouTubeId(url);
+            if (videoId) {
+                // Actualiza la url del iframe con el ID de YouTube
+                youtubeIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                youtubeContainer.classList.remove('hidden');
+                youtubeUrlInput.value = ''; // Limpia el input tras cargar
+            } else {
+                // Muestra un error si el link no es reconocido
+                youtubeError.classList.remove('hidden');
+            }
+        });
+
+        // Extrae el ID del video de múltiples formatos de links de YouTube
+        function extractYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Inicialización
+        updateUI();
+        renderProfilesDropdown();
+    </script>
+</body>
+</html>
