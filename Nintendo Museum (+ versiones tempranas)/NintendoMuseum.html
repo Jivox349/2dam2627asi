@@ -3387,27 +3387,40 @@
     function initScrollProgressBar() {
       const progressBar = document.getElementById('scrollProgressBar');
       const headerInner = document.getElementById('headerInner');
+      let isHeaderCompact = false;
+      let scrollTicking = false;
 
       function updateProgress() {
+        scrollTicking = false;
         const scrollTop = window.scrollY || window.pageYOffset || 0;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         if (progressBar) {
           const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
           progressBar.style.width = `${pct}%`;
         }
+        // Histéresis (64px para compactar, 16px para expandir) para evitar bucle de temblor
         if (headerInner) {
-          if (scrollTop > 36) {
+          if (!isHeaderCompact && scrollTop > 64) {
+            isHeaderCompact = true;
             headerInner.classList.remove('h-20');
             headerInner.classList.add('h-14');
-          } else {
+          } else if (isHeaderCompact && scrollTop < 16) {
+            isHeaderCompact = false;
             headerInner.classList.remove('h-14');
             headerInner.classList.add('h-20');
           }
         }
       }
 
-      window.addEventListener('scroll', updateProgress, { passive: true });
-      window.addEventListener('resize', updateProgress, { passive: true });
+      function onScrollOrResize() {
+        if (!scrollTicking) {
+          scrollTicking = true;
+          requestAnimationFrame(updateProgress);
+        }
+      }
+
+      window.addEventListener('scroll', onScrollOrResize, { passive: true });
+      window.addEventListener('resize', onScrollOrResize, { passive: true });
       updateProgress();
     }
 
@@ -3816,15 +3829,21 @@
       syncTicketUI();
 
       const nameInput = document.getElementById('visitorName');
+      const emailInput = document.getElementById('visitorEmail');
       const dateInput = document.getElementById('visitDate');
       if (!nameInput || !nameInput.value.trim()) {
         showToast('Introduce el nombre del visitante titular');
-        if (nameInput) nameInput.focus();
+        if (nameInput) nameInput.focus({ preventScroll: true });
+        return;
+      }
+      if (!emailInput || !emailInput.value.trim()) {
+        showToast('Introduce un correo electrónico válido');
+        if (emailInput) emailInput.focus({ preventScroll: true });
         return;
       }
       if (!dateInput || !dateInput.value) {
         showToast('Selecciona una fecha de visita');
-        if (dateInput) dateInput.focus();
+        if (dateInput) dateInput.focus({ preventScroll: true });
         return;
       }
 
