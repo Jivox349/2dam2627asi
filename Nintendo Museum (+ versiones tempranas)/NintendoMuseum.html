@@ -339,6 +339,76 @@
         opacity: 1 !important;
       }
     }
+
+    /* =========================================================
+       ESTILOS DE IMPRESIÓN (@media print): SOLO EL PLAY PASS
+       ========================================================= */
+    @media print {
+      @page {
+        size: auto;
+        margin: 14mm;
+      }
+
+      html, body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        min-height: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Ocultar cabecera, formulario, pie de página y elementos flotantes */
+      #mainHeader,
+      footer,
+      #ticketForm,
+      #confirmationBanner,
+      #ticketStatusBadge,
+      #toastNotification,
+      #galleryLightbox,
+      #customCursorRing,
+      #view-entradas > div > div:first-child,
+      #view-entradas > div > div.grid > div:last-child > div > div:first-child {
+        display: none !important;
+      }
+
+      /* Limpiar contenedores padre para evitar páginas extra en blanco */
+      main,
+      #view-entradas,
+      #view-entradas > div,
+      #view-entradas > div > div.grid,
+      #view-entradas > div > div.grid > div:last-child,
+      #view-entradas > div > div.grid > div:last-child > div {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+
+      /* Mostrar únicamente la tarjeta del Museum Play Pass con sus colores intactos */
+      #digitalTicketCard {
+        display: block !important;
+        width: 100% !important;
+        max-width: 440px !important;
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      #digitalTicketCard .ticket-shimmer {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-nintendo-cream text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300 min-h-screen flex flex-col font-sans text-base leading-relaxed selection:bg-nintendo-red selection:text-white">
