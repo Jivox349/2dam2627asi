@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nintendo Museum — Crónica Editorial de Desarrollo (v1 – v11)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            nintendo: {
+              red: '#E60012',
+              dark: '#B8000E',
+              tint: '#FFF1F2',
+            },
+            stone: {
+              canvas: '#F7F7F8',
+              line: '#E4E4E7',
+              ink: '#111113',
+              muted: '#52525B',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* =========================================================
+       ESTÉTICA EDITORIAL SWISS-GRID • ROJO NINTENDO Y BLANCO
+       ========================================================= */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F7F7F8;
+      color: #111113;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.03em;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Retícula arquitectónica sutil en cabecera */
+    .editorial-grid-bg {
+      background-image:
+        linear-gradient(to right, rgba(17, 17, 19, 0.045) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(17, 17, 19, 0.045) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid #E60012;
+      outline-offset: 2px;
+    }
+
+    /* =========================================================
+       BLOQUE DE SUPER MARIO INTERACTIVO (v1 .. v11)
+       ========================================================= */
+    .mario-block {
+      position: relative;
+      width: 118px;
+      height: 118px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #FACC15 0%, #EAB308 55%, #CA8A04 100%);
+      border: 3px solid #18181B;
+      box-shadow:
+        inset 0 4px 0 rgba(254, 249, 195, 0.9),
+        inset 0 -5px 0 rgba(133, 77, 14, 0.85),
+        0 6px 0 #18181B,
+        0 16px 28px -8px rgba(17, 17, 19, 0.22);
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                  filter 0.2s ease;
+    }
+
+    .mario-block:hover {
+      transform: translateY(-7px) scale(1.03);
+      filter: brightness(1.03);
+      box-shadow:
+        inset 0 4px 0 rgba(254, 249, 195, 0.95),
+        inset 0 -5px 0 rgba(133, 77, 14, 0.9),
+        0 11px 0 #18181B,
+        0 22px 34px -8px rgba(230, 0, 18, 0.24);
+    }
+
+    .mario-block:active {
+      transform: translateY(3px) scale(0.98);
+      box-shadow:
+        inset 0 2px 0 rgba(254, 249, 195, 0.7),
+        inset 0 -2px 0 rgba(133, 77, 14, 0.9),
+        0 2px 0 #18181B;
+    }
+
+    /* Bloque v11 Edición Final en Rojo Oficial Nintendo */
+    .mario-block.is-final {
+      background: linear-gradient(180deg, #FF2A3B 0%, #E60012 60%, #B8000E 100%);
+      border-color: #18181B;
+      box-shadow:
+        inset 0 4px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -5px 0 rgba(127, 29, 29, 0.9),
+        0 6px 0 #18181B,
+        0 18px 30px -8px rgba(230, 0, 18, 0.42);
+    }
+
+    .mario-block.is-final:hover {
+      box-shadow:
+        inset 0 4px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -5px 0 rgba(127, 29, 29, 0.95),
+        0 11px 0 #18181B,
+        0 24px 36px -8px rgba(230, 0, 18, 0.55);
+    }
+
+    /* Remaches metálicos en las 4 esquinas */
+    .mario-rivet {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background-color: #18181B;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    /* Moneda dorada que salta al pasar el cursor */
+    @keyframes coinPopUp {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 6px) scale(0.75);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -20px) scale(1.05);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -48px) scale(0.9);
+      }
+    }
+
+    .mario-block:hover .mario-coin {
+      animation: coinPopUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Aparición suave de filas */
+    @keyframes editorialRowIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .editorial-row {
+      animation: editorialRowIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mario-block:hover .mario-coin,
+      .editorial-row {
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-nintendo-red selection:text-white">
+
+  <!-- =========================================================
+       CABECERA EDITORIAL BLANCA CON ACENTOS ROJO NINTENDO
+       ========================================================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-line">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-4">
+        
+        <!-- Identidad Oficial Rojo y Blanco -->
+        <a href="#top" class="flex items-center gap-3.5 group shrink-0">
+          <span class="px-3.5 py-1 rounded-full bg-nintendo-red text-white font-display font-extrabold text-sm sm:text-base tracking-tight group-hover:bg-nintendo-dark transition-colors">
+            Nintendo
+          </span>
+          <div class="flex flex-col border-l border-stone-line pl-3.5">
+            <span class="font-display font-bold text-xs sm:text-sm uppercase tracking-wider text-stone-ink leading-none">
+              MUSEUM ARCHIVE
+            </span>
+            <span class="font-mono text-[11px] text-stone-muted mt-1">
+              Crónica de desarrollo • v1 – v11
+            </span>
+          </div>
+        </a>
+
+        <!-- Índice rápido de capítulos v1 a v11 -->
+        <nav aria-label="Índice rápido de versiones" class="hidden xl:flex items-center gap-1 bg-stone-canvas p-1 rounded-lg border border-stone-line">
+          <a href="#version-1" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v1</a>
+          <a href="#version-2" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v2</a>
+          <a href="#version-3" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v3</a>
+          <a href="#version-4" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v4</a>
+          <a href="#version-5" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v5</a>
+          <a href="#version-6" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v6</a>
+          <a href="#version-7" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v7</a>
+          <a href="#version-8" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v8</a>
+          <a href="#version-9" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v9</a>
+          <a href="#version-10" class="px-2 py-1 rounded font-mono text-xs font-semibold text-stone-muted hover:bg-white hover:text-nintendo-red transition-colors">v10</a>
+          <a href="#version-11" class="px-2.5 py-1 rounded font-mono text-xs font-bold bg-nintendo-red text-white">v11</a>
+        </nav>
+
+        <!-- CTA Directo a la App Final -->
+        <div class="flex items-center gap-2.5">
+          <button
+            type="button"
+            onclick="openInspector(11)"
+            class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white hover:bg-stone-canvas text-stone-ink border border-stone-line font-mono text-xs font-semibold transition-colors"
+          >
+            <span>Ficha Técnica</span>
+          </button>
+
+          <a
+            href="https://jivox349.github.io/2dam2627asi/Nintendo%20Museum%20(+%20versiones%20tempranas)/NintendoMuseum.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-nintendo-red hover:bg-nintendo-dark text-white font-display font-bold text-xs sm:text-sm transition-colors"
+          >
+            <span>Ver App Final</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Línea fina de progreso de lectura en Rojo Nintendo -->
+    <div class="w-full h-[2px] bg-stone-line" aria-hidden="true">
+      <div id="readingProgressBar" class="h-full w-0 bg-nintendo-red transition-[width] duration-75"></div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       HERO EDITORIAL ASIMÉTRICO + SCRUBBER INTERACTIVO DE VERSIONES
+       ========================================================= -->
+  <section id="top" class="bg-white border-b border-stone-line editorial-grid-bg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+        
+        <!-- Columna Izquierda (7 cols): Manifiesto Editorial -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center gap-2.5 px-3 py-1 rounded-md bg-nintendo-tint border border-nintendo-red/20">
+            <span class="w-2 h-2 rounded-full bg-nintendo-red"></span>
+            <span class="font-mono text-xs font-semibold uppercase tracking-wider text-nintendo-red">
+              Case Study • Arquitectura y Evolución Web
+            </span>
+          </div>
+
+          <h1 class="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-stone-ink leading-[1.04]">
+            La construcción paso a paso del <span class="text-nintendo-red">Nintendo Museum</span>.
+          </h1>
+
+          <p class="text-base sm:text-lg text-stone-muted max-w-2xl leading-relaxed">
+            Un recorrido cronológico desde el primer boceto funcional (<code class="px-1.5 py-0.5 rounded bg-stone-canvas border border-stone-line text-stone-ink text-xs font-semibold">v1</code>) hasta la edición definitiva (<code class="px-1.5 py-0.5 rounded bg-nintendo-tint border border-nintendo-red/20 text-nintendo-red text-xs font-semibold">NintendoMuseum.html</code>). Cada entrega documenta sus funciones, los cambios respecto a la versión previa, el prompt utilizado y un <strong class="text-stone-ink">bloque de Super Mario</strong> para abrir esa compilación en vivo.
+          </p>
+
+          <!-- Métricas en retícula suiza -->
+          <div class="pt-4 grid grid-cols-3 gap-6 border-t border-stone-line max-w-xl">
+            <div>
+              <span class="font-display text-3xl sm:text-4xl font-extrabold text-stone-ink">11</span>
+              <span class="block font-mono text-[11px] uppercase tracking-wider text-stone-muted mt-1">Versiones</span>
+            </div>
+            <div class="border-l border-stone-line pl-6">
+              <span class="font-display text-3xl sm:text-4xl font-extrabold text-nintendo-red">03</span>
+              <span class="block font-mono text-[11px] uppercase tracking-wider text-stone-muted mt-1">Fases de obra</span>
+            </div>
+            <div class="border-l border-stone-line pl-6">
+              <span class="font-display text-3xl sm:text-4xl font-extrabold text-stone-ink">100%</span>
+              <span class="block font-mono text-[11px] uppercase tracking-wider text-stone-muted mt-1">Desplegado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Derecha (5 cols): Salto rápido por versión -->
+        <div class="lg:col-span-5">
+          <div class="bg-stone-canvas border border-stone-line rounded-xl p-6 sm:p-7">
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-mono text-xs uppercase tracking-wider text-stone-ink font-bold">
+                Salto rápido por versión
+              </span>
+              <span class="font-mono text-xs text-nintendo-red font-semibold">v1 → v11</span>
+            </div>
+            <div class="grid grid-cols-6 gap-2" id="heroScrubberGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       BARRA DE FILTROS EDITORIALES Y LISTADO DE 11 VERSIONES
+       ========================================================= -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+    
+    <!-- Controles de filtro y búsqueda -->
+    <div class="bg-white border border-stone-line rounded-xl p-4 sm:p-5 mb-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filtrar por fase de desarrollo">
+        <button type="button" onclick="setPhaseFilter('all')" data-phase="all" class="phase-tab px-4 py-2 rounded-lg font-mono text-xs font-bold bg-nintendo-red text-white transition-colors">
+          Todas (v1–v11)
+        </button>
+        <button type="button" onclick="setPhaseFilter('fase1')" data-phase="fase1" class="phase-tab px-4 py-2 rounded-lg font-mono text-xs font-semibold bg-stone-canvas text-stone-muted hover:text-stone-ink border border-stone-line transition-colors">
+          Fase I: Cimientos (v1–v4)
+        </button>
+        <button type="button" onclick="setPhaseFilter('fase2')" data-phase="fase2" class="phase-tab px-4 py-2 rounded-lg font-mono text-xs font-semibold bg-stone-canvas text-stone-muted hover:text-stone-ink border border-stone-line transition-colors">
+          Fase II: Refinamiento Claude (v5–v10)
+        </button>
+        <button type="button" onclick="setPhaseFilter('fase3')" data-phase="fase3" class="phase-tab px-4 py-2 rounded-lg font-mono text-xs font-semibold bg-stone-canvas text-stone-muted hover:text-stone-ink border border-stone-line transition-colors">
+          Fase III: Lanzamiento (v11)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="relative flex-grow sm:w-72">
+          <input
+            type="search"
+            id="searchFilterInput"
+            oninput="handleSearchInput()"
+            placeholder="Buscar cambio (ej. carrusel, Claude, mapas...)"
+            class="w-full pl-9 pr-3.5 py-2 rounded-lg bg-stone-canvas border border-stone-line focus:bg-white focus:border-nintendo-red text-xs sm:text-sm text-stone-ink placeholder:text-stone-muted transition-colors"
+          />
+          <svg class="w-4 h-4 text-stone-muted absolute left-3 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <span id="counterBadge" class="hidden sm:inline-block font-mono text-xs text-stone-muted shrink-0">
+          11 / 11
+        </span>
+      </div>
+    </div>
+
+    <!-- Contenedor principal de las 11 entregas editoriales -->
+    <div id="editorialChangelogList" class="space-y-8"></div>
+
+    <!-- Estado vacío si no hay resultados -->
+    <div id="emptyResultsBox" class="hidden bg-white border border-stone-line rounded-xl p-12 text-center space-y-3">
+      <p class="font-display text-xl font-bold text-stone-ink">No se encontraron versiones con ese filtro</p>
+      <p class="text-sm text-stone-muted">Prueba con otro término o restablece el selector de fases.</p>
+      <button type="button" onclick="resetAllFilters()" class="mt-2 px-4 py-2 rounded-lg bg-nintendo-red text-white font-mono text-xs font-bold">
+        Mostrar todas las versiones
+      </button>
+    </div>
+
+  </main>
+
+  <!-- =========================================================
+       MODAL LIGHTBOX PARA INSPECCIONAR LA IMAGEN DEL PROMPT
+       ========================================================= -->
+  <div
+    id="promptZoomModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="zoomModalHeading"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-ink/85 backdrop-blur-sm p-4 sm:p-6"
+  >
+    <div class="w-full max-w-4xl bg-white rounded-xl border border-stone-line overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-stone-line bg-stone-canvas">
+        <div>
+          <span id="zoomModalPath" class="font-mono text-xs font-bold text-nintendo-red">nintendoPrompts/prompt1</span>
+          <h3 id="zoomModalHeading" class="font-display text-lg font-bold text-stone-ink mt-0.5">Captura del prompt</h3>
+        </div>
+        <button
+          type="button"
+          id="closeZoomModalBtn"
+          onclick="closePromptZoom()"
+          aria-label="Cerrar vista ampliada"
+          class="w-9 h-9 rounded-lg bg-white hover:bg-nintendo-red text-stone-ink hover:text-white border border-stone-line flex items-center justify-center transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-4 sm:p-6 bg-stone-canvas flex items-center justify-center">
+        <img
+          id="zoomModalImg"
+          src=""
+          alt="Captura ampliada del prompt"
+          class="max-h-[72vh] w-full object-contain rounded-lg border border-stone-line bg-white"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL FICHA TÉCNICA DE VERSIÓN
+       ========================================================= -->
+  <div
+    id="versionInspectorModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="inspectorModalTitle"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-ink/85 backdrop-blur-sm p-4 sm:p-6"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-xl border border-stone-line overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-stone-line bg-stone-canvas">
+        <div class="flex items-center gap-2.5">
+          <span class="px-2.5 py-0.5 rounded bg-nintendo-red text-white font-mono text-xs font-bold">
+            FICHA TÉCNICA
+          </span>
+          <h3 id="inspectorModalTitle" class="font-display text-lg font-bold text-stone-ink">Versión</h3>
+        </div>
+        <button
+          type="button"
+          id="closeInspectorModalBtn"
+          onclick="closeInspector()"
+          aria-label="Cerrar ficha técnica"
+          class="w-9 h-9 rounded-lg bg-white hover:bg-nintendo-red text-stone-ink hover:text-white border border-stone-line flex items-center justify-center transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="inspectorModalBody" class="p-6 space-y-5"></div>
+
+      <div class="px-6 py-4 border-t border-stone-line bg-stone-canvas flex items-center justify-between gap-3">
+        <button type="button" onclick="navigateInspector(-1)" class="px-4 py-2 rounded-lg bg-white hover:bg-stone-canvas border border-stone-line font-mono text-xs font-semibold text-stone-ink">
+          ← Anterior
+        </button>
+        <button type="button" onclick="navigateInspector(1)" class="px-4 py-2 rounded-lg bg-white hover:bg-stone-canvas border border-stone-line font-mono text-xs font-semibold text-stone-ink">
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PIE DE PÁGINA EDITORIAL
+       ========================================================= -->
+  <footer class="bg-white border-t border-stone-line mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="px-3 py-1 rounded-full bg-nintendo-red text-white font-display font-extrabold text-xs">
+          Nintendo
+        </span>
+        <span class="font-display font-bold text-sm text-stone-ink">
+          MUSEUM • DOCUMENTACIÓN DE EVOLUCIÓN
+        </span>
+      </div>
+      <div class="font-mono text-xs text-stone-muted text-center sm:text-right">
+        Prompts en <span class="text-stone-ink font-semibold">nintendoPrompts/</span> • Build final: <span class="text-nintendo-red font-bold">NintendoMuseum.html</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       DATOS DE LAS 11 VERSIONES Y LÓGICA DE INTERFAZ
+       ========================================================= -->
+  <script>
+    const BASE_GITHUB_PAGES = 'https://jivox349.github.io/2dam2627asi/Nintendo%20Museum%20(+%20versiones%20tempranas)/';
+
+    const VERSIONS_ARCHIVE = [
+      {
+        num: 1,
+        indexStr: '01',
+        tag: 'v1',
+        phase: 'fase1',
+        phaseLabel: 'Fase I • Cimientos',
+        origin: 'Base Inicial',
+        title: 'Página base, navegación multipantalla y diseño responsive',
+        file: 'nintendov1.html',
+        summary: 'Establece el esqueleto completo de la guía web del Nintendo Museum en Uji (Kioto) con una arquitectura responsive y multiplataforma adaptada a móviles, tabletas y escritorio. Permite navegar por varias pantallas independientes (Inicio, Historia, Qué ver, Entradas y Dudas/FAQ), además de incluir selector de tema y el primer simulador de reserva de entradas.',
+        changes: [
+          'Diseño 100% responsive y multiplataforma con navegación entre las distintas pantallas principales mediante barra superior y menú desplegable táctil.',
+          'Implementación de las pantallas de Inicio, Historia cronológica desde 1889, catálogo de zonas en Qué ver y formulario de Entradas con cálculo automático de tarifas.',
+          'Incorporación del apartado de Dudas (FAQ) con preguntas frecuentes sobre el sorteo de acceso, horarios, normas de sala y servicios del recinto.'
+        ]
+      },
+      {
+        num: 2,
+        indexStr: '02',
+        tag: 'v2',
+        phase: 'fase1',
+        phaseLabel: 'Fase I • Cimientos',
+        origin: 'Limpieza Visual y Mapas',
+        title: 'Eliminación de emojis, agregado de imágenes, Google Maps y depuración de entradas',
+        file: 'nintendov2.html',
+        summary: 'Eleva el rigor visual de la aplicación retirando los emojis informales, incorporando fotografías reales y un mapa interactivo de Google Maps, y eliminando datos de prueba en el módulo de entradas.',
+        changes: [
+          'Sustitución completa de todos los emojis por iconografía vectorial SVG uniforme en tarjetas, avisos y botones.',
+          'Integración de fotografías en las distintas zonas del museo y mapa embebido de Google Maps.',
+          'Depuración del módulo de entradas quitando muestras de prueba y preparando el flujo limpio para visitantes reales.'
+        ]
+      },
+      {
+        num: 3,
+        indexStr: '03',
+        tag: 'v3',
+        phase: 'fase1',
+        phaseLabel: 'Fase I • Cimientos',
+        origin: 'Contenido Nintendo',
+        title: 'Cambio a imágenes relacionadas con Nintendo y el Nintendo Museum',
+        file: 'nintendov3.html',
+        summary: 'Reemplaza los recursos gráficos anteriores por fotografías auténticas de las salas del Nintendo Museum (Galería Histórica, experiencias interactivas gigantes, taller Hanafuda, Hatena Burger y tienda Bonus Stage).',
+        changes: [
+          'Curación e integración de imágenes oficiales del recinto de Uji Ogura y de la evolución histórica de logotipos de Nintendo.',
+          'Sistema de respaldo automático (onerror) para sustituir cualquier imagen caída sin romper la maquetación.',
+          'Alineación visual entre las tarjetas de los 5 pilares del museo y sus subpáginas temáticas.'
+        ]
+      },
+      {
+        num: 4,
+        indexStr: '04',
+        tag: 'v4',
+        phase: 'fase1',
+        phaseLabel: 'Fase I • Cimientos',
+        origin: 'Portada Dinámica',
+        title: 'Carrusel de imágenes interactivo en la pantalla de Inicio',
+        file: 'nintendov4.html',
+        summary: 'Transforma la cabecera principal en una vitrina dinámica con un carrusel automático de 5 fotografías del museo, controles de navegación manual, indicadores y enlaces directos a cada área.',
+        changes: [
+          'Carrusel de 5 diapositivas en el Hero con transiciones suaves de opacidad y escala cada 4,2 segundos.',
+          'Controles Anterior/Siguiente, puntos indicadores y enlace dinámico «En pantalla» hacia cada subpágina.',
+          'Pausa automática al situar el cursor encima y soporte para preferencias de movimiento reducido.'
+        ]
+      },
+      {
+        num: 5,
+        indexStr: '05',
+        tag: 'v5',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Prompt de Claude',
+        title: 'Cambio de la fuente de los textos para hacer la aplicación más vistosa',
+        file: 'nintendov5.html',
+        summary: 'Primera iteración asistida con prompt de Claude dedicada a la tipografía: introduce una fuente redondeada y expresiva para encabezados y cifras clave combinada con una fuente altamente legible para textos.',
+        changes: [
+          'Integración de Fredoka (600/700) para títulos, logotipos y contadores junto con Inter para textos y controles.',
+          'Calibración de jerarquía tipográfica, interletraje negativo en titulares y contraste en modo claro y oscuro.',
+          'Mayor impacto visual en precios, saldos de monedas digitales y etiquetas de sección.'
+        ]
+      },
+      {
+        num: 6,
+        indexStr: '06',
+        tag: 'v6',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Prompt de Claude',
+        title: 'Mejora del Hero para la captación del usuario',
+        file: 'nintendov6.html',
+        summary: 'Rediseña la primera impresión de la web para captar al visitante al instante: Hero a pantalla casi completa con tinte rojo marca, elementos decorativos estilo Mario con parallax y barra inferior con datos clave.',
+        changes: [
+          'Hero ampliado (85vh) con superposición en rojo Nintendo (#E60012), trama de puntos y degradado de contraste AA.',
+          'Incorporación de elementos decorativos con parallax sutil: bloque «?», monedas giratorias y tubería verde.',
+          'Nueva barra inferior translúcida con 4 datos clave: ubicación, horario habitual, cierre semanal y 10 monedas.'
+        ]
+      },
+      {
+        num: 7,
+        indexStr: '07',
+        tag: 'v7',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Prompt de Claude',
+        title: 'Mejora en las animaciones a la hora de hacer scroll',
+        file: 'nintendov7.html',
+        summary: 'Implementa un sistema de revelado progresivo al desplazarse por la página mediante IntersectionObserver, contadores numéricos animados y una barra superior de progreso de lectura.',
+        changes: [
+          'Aparición escalonada (.reveal y .reveal-delay-1..4) en tarjetas, hitos cronológicos y bloques informativos.',
+          'Contadores animados (data-count-to) en cifras clave como 135 años, 8 experiencias, 10 monedas y 270.000+ recetas.',
+          'Barra superior de progreso de scroll (3px) y compactación fluida de la cabecera al desplazarse.'
+        ]
+      },
+      {
+        num: 8,
+        indexStr: '08',
+        tag: 'v8',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Prompt de Claude',
+        title: 'Mejora en la estructura de la página',
+        file: 'nintendov8.html',
+        summary: 'Reorganiza la arquitectura de contenidos para clarificar la distribución entre el Edificio Principal y el Edificio de Talleres y Cafetería, añadiendo rutas de tren e itinerario sugerido de 4 horas.',
+        changes: [
+          'Bloque estructural de distribución por edificios (Edificio Principal vs. Edificio de Talleres y Cafetería).',
+          'Subpágina dedicada con itinerario paso a paso de ~4 horas y tiempos estimados por actividad.',
+          'Rutas ferroviarias detalladas desde Kioto (~25 min) y Osaka-Namba (~60 min), más pie de página completo.'
+        ]
+      },
+      {
+        num: 9,
+        indexStr: '09',
+        tag: 'v9',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Corrección de Error',
+        title: 'Corrección de error en la página de Inicio',
+        file: 'nintendov9.html',
+        summary: 'Iteración enfocada en corregir un problema detectado en la página de Inicio, asegurando que las animaciones de entrada, la visibilidad de bloques y el carrusel funcionen sin fallos al cargar o navegar.',
+        changes: [
+          'Corrección de la visibilidad inicial de los bloques con clase .reveal en la vista de Inicio.',
+          'Sincronización limpia entre las diapositivas del Hero, sus pies de foto dinámicos y el salto a subpáginas.',
+          'Estabilización del diseño adaptativo en pantallas móviles y tabletas.'
+        ]
+      },
+      {
+        num: 10,
+        indexStr: '10',
+        tag: 'v10',
+        phase: 'fase2',
+        phaseLabel: 'Fase II • Refinamiento Claude',
+        origin: 'Prompt de Claude',
+        title: 'Mejora del diseño de la web',
+        file: 'nintendov10.html',
+        summary: 'Consolida un sistema de diseño cohesivo con tokens de color, radios y sombras, botones estilo consola con relieve físico, galería fotográfica con Lightbox accesible e impresión limpia del pase digital.',
+        changes: [
+          'Definición de tokens de diseño (--radius-sm/md/lg, sombras por niveles y superficie crema #FAF8F5) y botones .btn con relieve.',
+          'Galería tipo masonry de 6 fotografías con modal Lightbox accesible (navegación por teclado, foco atrapado y cierre con Esc).',
+          'Hoja de estilos @media print optimizada para imprimir exclusivamente el Museum Play Pass con su código QR.'
+        ]
+      },
+      {
+        num: 11,
+        indexStr: '11',
+        tag: 'v11',
+        phase: 'fase3',
+        phaseLabel: 'Fase III • Lanzamiento Final',
+        origin: 'Prompt de Claude • Final',
+        title: 'Detalles interactivos con el usuario, Mini-Quiz y Easter Egg del bloque «?»',
+        file: 'NintendoMuseum.html',
+        summary: 'Versión definitiva de la aplicación web. Añade microinteracciones y componentes lúdicos que convierten la guía en una experiencia memorable: línea de tiempo horizontal arrastrable, Mini-Quiz evaluable, anillo de cursor opcional y bloque «?» con monedas y sonido sintetizado.',
+        changes: [
+          'Easter Egg interactivo en el pie de página: bloque «?» que lanza monedas doradas, guarda el progreso en localStorage y emite un bip sintetizado opcional con Web Audio API.',
+          'Línea de tiempo horizontal interactiva de generaciones de consolas con soporte para arrastre con ratón y flechas de teclado.',
+          'Mini-Quiz interactivo de 3 preguntas en la sección FAQ con corrección inmediata y anillo de cursor personalizable en escritorio.'
+        ]
+      }
+    ];
+
+    let activePhaseFilter = 'all';
+    let currentInspectorNum = 11;
+
+    function buildHeroScrubber() {
+      const grid = document.getElementById('heroScrubberGrid');
+      if (!grid) return;
+
+      grid.innerHTML = VERSIONS_ARCHIVE.map(ver => {
+        const isFinal = ver.num === 11;
+        return `
+          <a
+            href="#version-${ver.num}"
+            class="py-1.5 rounded text-center font-mono text-xs font-bold transition-colors ${
+              isFinal
+                ? 'bg-nintendo-red text-white hover:bg-nintendo-dark'
+                : 'bg-white text-stone-ink border border-stone-line hover:border-nintendo-red hover:text-nintendo-red'
+            }"
+          >
+            ${ver.tag}
+          </a>
+        `;
+      }).join('');
+    }
+
+    function renderEditorialChangelog() {
+      const container = document.getElementById('editorialChangelogList');
+      const emptyBox = document.getElementById('emptyResultsBox');
+      const counterBadge = document.getElementById('counterBadge');
+      const searchInput = document.getElementById('searchFilterInput');
+      if (!container) return;
+
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+      const filtered = VERSIONS_ARCHIVE.filter(ver => {
+        const matchesPhase = activePhaseFilter === 'all' || ver.phase === activePhaseFilter;
+        const matchesQuery = !query ||
+          ver.tag.toLowerCase().includes(query) ||
+          ver.title.toLowerCase().includes(query) ||
+          ver.summary.toLowerCase().includes(query) ||
+          ver.origin.toLowerCase().includes(query) ||
+          ver.file.toLowerCase().includes(query) ||
+          ver.changes.some(c => c.toLowerCase().includes(query));
+        return matchesPhase && matchesQuery;
+      });
+
+      if (counterBadge) {
+        counterBadge.textContent = `${filtered.length} / ${VERSIONS_ARCHIVE.length}`;
+      }
+
+      container.innerHTML = '';
+
+      if (filtered.length === 0) {
+        if (emptyBox) emptyBox.classList.remove('hidden');
+        return;
+      }
+
+      if (emptyBox) emptyBox.classList.add('hidden');
+
+      filtered.forEach((ver, idx) => {
+        const isFinal = ver.num === 11;
+        const liveUrl = `${BASE_GITHUB_PAGES}${ver.file}`;
+        const promptBase = `nintendoPrompts/prompt${ver.num}`;
+
+        const article = document.createElement('article');
+        article.id = `version-${ver.num}`;
+        article.style.animationDelay = `${Math.min(idx * 45, 250)}ms`;
+        article.className = `editorial-row scroll-mt-24 bg-white rounded-xl border ${
+          isFinal
+            ? 'border-nintendo-red ring-1 ring-nintendo-red/25 shadow-lg'
+            : 'border-stone-line shadow-sm'
+        } overflow-hidden`;
+
+        const changesMarkup = ver.changes.map(change => `
+          <li class="flex items-start gap-2.5 text-xs sm:text-sm text-stone-ink/90 leading-relaxed">
+            <span class="w-1.5 h-1.5 rounded-full bg-nintendo-red mt-2 shrink-0"></span>
+            <span>${change}</span>
+          </li>
+        `).join('');
+
+        article.innerHTML = `
+          <!-- Banda superior de metadatos -->
+          <div class="px-6 sm:px-8 py-3.5 border-b ${
+            isFinal
+              ? 'bg-nintendo-red text-white border-nintendo-red'
+              : 'bg-stone-canvas text-stone-ink border-stone-line'
+          } flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="font-mono text-xs font-bold px-2.5 py-0.5 rounded ${
+                isFinal
+                  ? 'bg-white text-nintendo-red'
+                  : 'bg-nintendo-red text-white'
+              }">
+                ${ver.indexStr} / 11
+              </span>
+              <span class="font-mono text-xs font-semibold ${
+                isFinal ? 'text-white' : 'text-stone-ink'
+              }">
+                ${ver.phaseLabel}
+              </span>
+              <span class="text-xs opacity-60">•</span>
+              <span class="font-mono text-xs ${
+                isFinal ? 'text-white/90' : 'text-stone-muted'
+              }">
+                ${ver.origin}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                onclick="openInspector(${ver.num})"
+                class="font-mono text-xs font-semibold underline underline-offset-4 ${
+                  isFinal ? 'text-white hover:text-white/80' : 'text-stone-muted hover:text-nintendo-red'
+                } transition-colors"
+              >
+                Detalles
+              </button>
+              <span class="font-mono text-xs px-2.5 py-0.5 rounded ${
+                isFinal
+                  ? 'bg-black/20 text-white'
+                  : 'bg-white border border-stone-line text-stone-ink'
+              }">
+                ${ver.file}
+              </span>
+            </div>
+          </div>
+
+          <!-- Cuerpo Editorial de 3 Columnas -->
+          <div class="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Columna 1 (6 cols): Explicación funcional y registro de cambios -->
+            <div class="lg:col-span-6 space-y-5">
+              <div>
+                <h2 class="font-display text-2xl sm:text-[1.65rem] font-extrabold text-stone-ink leading-tight">
+                  ${ver.title}
+                </h2>
+                <p class="text-sm sm:text-base text-stone-muted mt-2.5 leading-relaxed">
+                  ${ver.summary}
+                </p>
+              </div>
+
+              <div class="p-5 rounded-lg bg-stone-canvas border border-stone-line space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-nintendo-red">
+                    ${ver.num === 1 ? 'Arquitectura y funciones base' : `Cambios respecto a v${ver.num - 1}`}
+                  </span>
+                  <span class="font-mono text-[11px] text-stone-muted">
+                    ${ver.changes.length} puntos
+                  </span>
+                </div>
+                <ul class="space-y-2">
+                  ${changesMarkup}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Columna 2 (4 cols): Captura del Prompt enmarcada -->
+            <div class="lg:col-span-4">
+              <div class="bg-stone-canvas border border-stone-line rounded-lg p-3.5 space-y-2.5">
+                <div class="flex items-center justify-between px-0.5">
+                  <span class="font-mono text-[11px] font-bold uppercase tracking-wider text-stone-ink">
+                    Prompt Utilizado
+                  </span>
+                  <span class="font-mono text-[11px] text-nintendo-red font-semibold">
+                    ${promptBase}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onclick="openPromptZoom(this, ${ver.num})"
+                  class="group relative w-full h-48 rounded-md overflow-hidden bg-white border border-stone-line block text-left"
+                  aria-label="Ampliar captura del prompt ${ver.num}"
+                >
+                  <img
+                    src="${promptBase}.png"
+                    data-base="${promptBase}"
+                    data-ext-index="0"
+                    alt="Captura del prompt empleado para generar la versión ${ver.tag}"
+                    onerror="cyclePromptExtension(this, ${ver.num})"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <span class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded bg-stone-ink/85 text-white font-mono text-[11px] font-semibold flex items-center gap-1.5 group-hover:bg-nintendo-red transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    <span>Inspeccionar</span>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Columna 3 (2 cols): Bloque interactivo de Super Mario -->
+            <div class="lg:col-span-2 flex flex-col items-center justify-center text-center pt-2 lg:pt-0">
+              <a
+                href="${liveUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir versión ${ver.tag} en GitHub Pages"
+                class="mario-block ${isFinal ? 'is-final' : ''} flex flex-col items-center justify-center select-none cursor-pointer"
+              >
+                <!-- Moneda dorada que salta al pasar el ratón -->
+                <span aria-hidden="true" class="mario-coin opacity-0 pointer-events-none absolute -top-2 left-1/2 z-20">
+                  <svg class="w-6 h-7 drop-shadow" viewBox="0 0 36 44" fill="none">
+                    <ellipse cx="18" cy="22" rx="13" ry="18" fill="#FACC15" stroke="#18181B" stroke-width="2.5"/>
+                    <rect x="16.2" y="14" width="3.6" height="16" rx="1.8" fill="#18181B"/>
+                  </svg>
+                </span>
+
+                <!-- 4 remaches en las esquinas -->
+                <span class="mario-rivet top-2 left-2"></span>
+                <span class="mario-rivet top-2 right-2"></span>
+                <span class="mario-rivet bottom-2 left-2"></span>
+                <span class="mario-rivet bottom-2 right-2"></span>
+
+                <!-- Etiqueta de versión -->
+                <span class="font-display font-extrabold text-3xl sm:text-4xl ${
+                  isFinal ? 'text-white' : 'text-stone-ink'
+                } leading-none">
+                  ${ver.tag}
+                </span>
+                <span class="font-mono text-[10px] font-bold uppercase tracking-widest mt-1.5 ${
+                  isFinal ? 'text-white/90' : 'text-stone-ink/80'
+                }">
+                  ${isFinal ? 'FINAL' : 'ABRIR'}
+                </span>
+              </a>
+
+              <span class="font-mono text-[11px] text-stone-muted mt-3">
+                Ejecutar <strong class="text-stone-ink">${ver.tag}</strong>
+              </span>
+            </div>
+
+          </div>
+        `;
+
+        container.appendChild(article);
+      });
+    }
+
+    const PROMPT_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp'];
+
+    function cyclePromptExtension(imgEl, versionNum) {
+      if (!imgEl) return;
+      const base = imgEl.dataset.base || `nintendoPrompts/prompt${versionNum}`;
+      const nextIdx = parseInt(imgEl.dataset.extIndex || '0', 10) + 1;
+
+      if (nextIdx < PROMPT_EXTENSIONS.length) {
+        imgEl.dataset.extIndex = String(nextIdx);
+        imgEl.src = `${base}${PROMPT_EXTENSIONS[nextIdx]}`;
+      } else if (imgEl.dataset.fallbackApplied !== 'true') {
+        imgEl.dataset.fallbackApplied = 'true';
+        const label = encodeURIComponent(`nintendoPrompts/prompt${versionNum}`);
+        imgEl.src = `https://placehold.co/800x480/FFF1F2/E60012?text=${label}`;
+      }
+    }
+
+    function setPhaseFilter(phase) {
+      activePhaseFilter = phase;
+      document.querySelectorAll('.phase-tab').forEach(btn => {
+        const isSelected = btn.dataset.phase === phase;
+        btn.classList.toggle('bg-nintendo-red', isSelected);
+        btn.classList.toggle('text-white', isSelected);
+        btn.classList.toggle('font-bold', isSelected);
+        btn.classList.toggle('bg-stone-canvas', !isSelected);
+        btn.classList.toggle('text-stone-muted', !isSelected);
+        btn.classList.toggle('border', !isSelected);
+        btn.classList.toggle('border-stone-line', !isSelected);
+      });
+      renderEditorialChangelog();
+    }
+
+    function handleSearchInput() {
+      renderEditorialChangelog();
+    }
+
+    function resetAllFilters() {
+      const searchInput = document.getElementById('searchFilterInput');
+      if (searchInput) searchInput.value = '';
+      setPhaseFilter('all');
+    }
+
+    function openPromptZoom(btnEl, versionNum) {
+      const ver = VERSIONS_ARCHIVE.find(v => v.num === versionNum);
+      const imgEl = btnEl ? btnEl.querySelector('img') : null;
+      const modal = document.getElementById('promptZoomModal');
+      const modalImg = document.getElementById('zoomModalImg');
+      const modalPath = document.getElementById('zoomModalPath');
+      const modalHeading = document.getElementById('zoomModalHeading');
+
+      if (!modal || !modalImg || !imgEl || !ver) return;
+
+      modalImg.src = imgEl.src;
+      if (modalPath) modalPath.textContent = `nintendoPrompts/prompt${ver.num} • Versión ${ver.tag}`;
+      if (modalHeading) modalHeading.textContent = ver.title;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      const closeBtn = document.getElementById('closeZoomModalBtn');
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closePromptZoom() {
+      const modal = document.getElementById('promptZoomModal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openInspector(versionNum) {
+      const ver = VERSIONS_ARCHIVE.find(v => v.num === versionNum);
+      const modal = document.getElementById('versionInspectorModal');
+      const titleEl = document.getElementById('inspectorModalTitle');
+      const bodyEl = document.getElementById('inspectorModalBody');
+      if (!ver || !modal || !titleEl || !bodyEl) return;
+
+      currentInspectorNum = ver.num;
+      const liveUrl = `${BASE_GITHUB_PAGES}${ver.file}`;
+
+      titleEl.textContent = `${ver.tag.toUpperCase()} — ${ver.title}`;
+      bodyEl.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+          <div class="p-3 rounded-lg bg-stone-canvas border border-stone-line">
+            <span class="text-stone-muted block">Fase</span>
+            <span class="text-stone-ink font-semibold mt-0.5 block">${ver.phaseLabel}</span>
+          </div>
+          <div class="p-3 rounded-lg bg-stone-canvas border border-stone-line">
+            <span class="text-stone-muted block">Archivo HTML</span>
+            <span class="text-nintendo-red font-bold mt-0.5 block">${ver.file}</span>
+          </div>
+          <div class="p-3 rounded-lg bg-stone-canvas border border-stone-line">
+            <span class="text-stone-muted block">Prompt asociado</span>
+            <span class="text-stone-ink font-semibold mt-0.5 block">nintendoPrompts/prompt${ver.num}</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="font-mono text-xs font-bold uppercase tracking-wider text-stone-muted mb-1.5">Descripción funcional</h4>
+          <p class="text-sm text-stone-ink leading-relaxed">${ver.summary}</p>
+        </div>
+
+        <div class="p-4 rounded-lg bg-stone-canvas border border-stone-line">
+          <h4 class="font-mono text-xs font-bold uppercase tracking-wider text-nintendo-red mb-2.5">
+            ${ver.num === 1 ? 'Funciones iniciales' : `Registro de cambios respecto a v${ver.num - 1}`}
+          </h4>
+          <ul class="space-y-2">
+            ${ver.changes.map(c => `
+              <li class="flex items-start gap-2.5 text-xs sm:text-sm text-stone-ink">
+                <span class="w-1.5 h-1.5 rounded-full bg-nintendo-red mt-2 shrink-0"></span>
+                <span>${c}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="pt-1 flex justify-end">
+          <a
+            href="${liveUrl}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-nintendo-red hover:bg-nintendo-dark text-white font-display font-bold text-xs sm:text-sm transition-colors"
+          >
+            <span>Abrir ${ver.tag} en GitHub Pages</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </a>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeInspector() {
+      const modal = document.getElementById('versionInspectorModal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function navigateInspector(delta) {
+      let next = currentInspectorNum + delta;
+      if (next < 1) next = VERSIONS_ARCHIVE.length;
+      if (next > VERSIONS_ARCHIVE.length) next = 1;
+      openInspector(next);
+    }
+
+    function initReadingProgress() {
+      const bar = document.getElementById('readingProgressBar');
+      if (!bar) return;
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY || window.pageYOffset;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = maxScroll > 0 ? Math.min(100, Math.max(0, (scrollTop / maxScroll) * 100)) : 0;
+        bar.style.width = `${pct}%`;
+      }, { passive: true });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      buildHeroScrubber();
+      renderEditorialChangelog();
+      initReadingProgress();
+
+      const zoomModal = document.getElementById('promptZoomModal');
+      if (zoomModal) {
+        zoomModal.addEventListener('click', (e) => {
+          if (e.target === zoomModal) closePromptZoom();
+        });
+      }
+
+      const inspectorModal = document.getElementById('versionInspectorModal');
+      if (inspectorModal) {
+        inspectorModal.addEventListener('click', (e) => {
+          if (e.target === inspectorModal) closeInspector();
+        });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePromptZoom();
+          closeInspector();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
