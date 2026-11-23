@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEKKEN 8 PRACTICE // KAZUYA MISHIMA — EWGF DOJO</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tipografías de combate Tekken & telemetría precisa -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&family=JetBrains+Mono:wght@400;600;700;800&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        tekken: ['"Barlow Condensed"', 'sans-serif'],
+                        display: ['Teko', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-carbon: #0b0c0e;
+            --bg-panel: #14161b;
+            --bg-panel-alt: #1a1d24;
+            --border-bevel: #2a2e39;
+            --tekken-red: #e6192e;
+            --tekken-red-dark: #990f1d;
+            --tekken-gold: #f5b800;
+            --electric-cyan: #7dd3fc;
+            --electric-white: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-carbon);
+            color: #f1f5f9;
+            font-family: 'Barlow Condensed', sans-serif;
+            /* Trama de malla metálica hexagonal/diagonal + luz ambiental roja/dorada superior */
+            background-image:
+                radial-gradient(ellipse 80% 35% at 50% -5%, rgba(230, 25, 46, 0.24), rgba(245, 184, 0, 0.08) 55%, transparent 85%),
+                repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.018) 0px, rgba(255, 255, 255, 0.018) 1px, transparent 1px, transparent 12px),
+                repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.018) 0px, rgba(255, 255, 255, 0.018) 1px, transparent 1px, transparent 12px);
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Cortes poligonales biselados estilo HUD de Tekken 8 */
+        .t8-panel {
+            background: linear-gradient(165deg, #181b22 0%, #111318 100%);
+            border: 1px solid var(--border-bevel);
+            clip-path: polygon(
+                0 0,
+                calc(100% - 14px) 0,
+                100% 14px,
+                100% 100%,
+                14px 100%,
+                0 calc(100% - 14px)
+            );
+            position: relative;
+        }
+
+        .t8-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 48px;
+            height: 2px;
+            background: var(--tekken-red);
+            pointer-events: none;
+        }
+
+        .t8-subpanel {
+            background: rgba(11, 12, 14, 0.72);
+            border: 1px solid #262a35;
+            clip-path: polygon(
+                8px 0,
+                100% 0,
+                100% calc(100% - 8px),
+                calc(100% - 8px) 100%,
+                0 100%,
+                0 8px
+            );
+        }
+
+        /* Avatar hexagonal estilo Banapassport / Tekken Fight Lounge */
+        .t8-hex-avatar {
+            clip-path: polygon(25% 4%, 75% 4%, 98% 50%, 75% 96%, 25% 96%, 2% 50%);
+        }
+
+        /* Máscara diagonal para arte ambiental en el Stage Monitor central */
+        .t8-stage-art-mask {
+            clip-path: polygon(22% 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .t8-btn {
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            transition: all 0.1s ease;
+        }
+
+        .t8-btn:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* Animación de golpe de impacto en el banner de veredicto */
+        @keyframes hitImpact {
+            0% {
+                transform: scale(1.25) skewX(-6deg);
+                filter: brightness(2.2);
+            }
+            45% {
+                transform: scale(0.97) skewX(-6deg);
+                filter: brightness(1.3);
+            }
+            100% {
+                transform: scale(1) skewX(-6deg);
+                filter: brightness(1);
+            }
+        }
+
+        .verdict-impact {
+            animation: hitImpact 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Sacudida de retrato al ejecutar DORYA */
+        @keyframes portraitShock {
+            0% { transform: translate(0, 0) scale(1.06); filter: contrast(1.35) brightness(1.5); }
+            20% { transform: translate(-4px, 2px) scale(1.04); }
+            40% { transform: translate(4px, -2px) scale(1.03); }
+            60% { transform: translate(-2px, -1px) scale(1.02); }
+            100% { transform: translate(0, 0) scale(1); filter: contrast(1.08) brightness(1); }
+        }
+
+        .portrait-electric-hit {
+            animation: portraitShock 0.32s ease-out;
+        }
+
+        @keyframes stageArtFlash {
+            0% { opacity: 0.92; filter: brightness(1.85) contrast(1.25) saturate(1.3); transform: scale(1.04); }
+            100% { opacity: 0.38; filter: brightness(1) contrast(1.1) saturate(1); transform: scale(1); }
+        }
+
+        .stage-art-electric {
+            animation: stageArtFlash 0.55s ease-out forwards;
+        }
+
+        /* Botones arcade estilo Sanwa OBSF-30 */
+        .arcade-btn-circle {
+            border-radius: 9999px;
+            position: relative;
+            transition: transform 0.04s ease, box-shadow 0.04s ease, filter 0.06s ease;
+        }
+
+        .arcade-btn-circle.is-pressed {
+            transform: translateY(4px) scale(0.95);
+            filter: brightness(1.35);
+        }
+
+        /* Scrollbar oscuro estilo consola */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0f13;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f3543;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--tekken-red);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 1. BARRA SUPERIOR HUD ESTILO TEKKEN 8 PRACTICE MODE -->
+    <header class="border-b border-[#2a2e39] bg-[#0e1014]/95 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- UBICACIÓN 1: Emblema Tekken Practice Mode + Avatar Hexagonal Banapassport -->
+            <div class="flex items-center gap-3">
+                <!-- Avatar Hexagonal Kazuya con borde dorado (#f5b800) -->
+                <div class="relative w-12 h-12 sm:w-14 sm:h-14 shrink-0 bg-[#f5b800] p-[2px] t8-hex-avatar shadow-[0_0_16px_rgba(245,184,0,0.35)]">
+                    <div class="w-full h-full bg-[#0b0c0e] t8-hex-avatar overflow-hidden">
+                        <img 
+                            src="https://static.wikia.nocookie.net/namco/images/8/8e/ImagesCAK3OT83.jpg/revision/latest?cb=20120810065350"
+                            alt="Kazuya Banapassport Avatar"
+                            class="w-full h-full object-cover object-top"
+                            onerror="handleImageFallback(this, 2)"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="bg-[#e6192e] text-white px-2 py-0.5 font-tekken font-extrabold italic text-sm sm:text-base tracking-wider uppercase skew-x-[-10deg] shadow-[0_0_12px_rgba(230,25,46,0.45)]">
+                            TEKKEN 8 // PRACTICE
+                        </span>
+                        <h1 class="font-tekken font-extrabold italic text-2xl sm:text-3xl tracking-wide uppercase leading-none text-white">
+                            TEKKEN 8 // <span class="text-[#f5b800]">MISHIMA DOJO</span>
+                        </h1>
+                        <span class="hidden md:inline-block font-mono text-[10px] font-bold px-2 py-0.5 bg-[#f5b800]/15 border border-[#f5b800]/50 text-[#f5b800]">
+                            KAZUYA_MAIN // 1P
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p id="header-subtitle" class="font-mono text-[11px] text-slate-400 tracking-wider uppercase">
+                            EWGF & WAVEDASH // MISHIMA EXECUTION TRAINER
+                        </p>
+                        <span class="hidden sm:inline-block font-mono text-[10px] font-bold px-1.5 py-0 bg-[#1b1f28] border border-[#343a48] text-slate-300">
+                            60 FPS / 16.67ms
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Superiores de Sesión -->
+            <div class="flex flex-wrap items-center gap-2">
+                
+                <!-- Selector Triple de Modo: STANDARD vs MIST STEP vs WAVEDASH -->
+                <div class="flex bg-[#0b0c0e] p-1 border border-[#2a2e39] t8-btn">
+                    <button id="btn-mode-normal" class="px-2.5 sm:px-3 py-1 font-tekken font-bold italic text-sm sm:text-base tracking-wider uppercase transition cursor-pointer bg-[#e6192e] text-white">
+                        EWGF (STANDARD)
+                    </button>
+                    <button id="btn-mode-mist" class="px-2.5 sm:px-3 py-1 font-tekken font-bold italic text-sm sm:text-base tracking-wider uppercase transition cursor-pointer text-slate-400 hover:text-white">
+                        EWGF (MIST STEP)
+                    </button>
+                    <button id="btn-mode-wavedash" class="px-2.5 sm:px-3 py-1 font-tekken font-bold italic text-sm sm:text-base tracking-wider uppercase transition cursor-pointer text-slate-400 hover:text-white">
+                        WAVEDASH
+                    </button>
+                </div>
+
+                <!-- Selector Lado: 1P (LEFT) vs 2P (RIGHT) -->
+                <div class="flex bg-[#0b0c0e] p-1 border border-[#2a2e39] t8-btn">
+                    <button id="btn-side-p1" class="px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer bg-[#f5b800] text-black">
+                        1P [IZQ]
+                    </button>
+                    <button id="btn-side-p2" class="px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer text-slate-400 hover:text-white">
+                        2P [DER]
+                    </button>
+                </div>
+
+                <!-- Botón Mute / Audio Arcade -->
+                <button id="btn-audio" class="t8-btn px-3 py-1.5 bg-[#1a1d24] hover:bg-[#242934] border border-[#323846] font-mono text-xs font-bold uppercase flex items-center gap-2 cursor-pointer">
+                    <span id="audio-dot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+                    <span id="audio-text">SFX ON</span>
+                </button>
+
+                <!-- Botón Configuración Controles -->
+                <button id="btn-open-config" class="t8-btn px-3.5 py-1.5 bg-[#e6192e] hover:bg-[#ff243b] text-white font-tekken font-bold italic text-base tracking-wider uppercase cursor-pointer">
+                    CONTROLES / STICK
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="max-w-[1480px] w-full mx-auto px-4 sm:px-6 py-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- COLUMNA IZQUIERDA (3 COLS): CHARACTER / MOVE DATA CON LAS 3 IMÁGENES DE KAZUYA -->
+        <section class="lg:col-span-3 flex flex-col gap-4">
+            <div class="t8-panel p-4 flex flex-col gap-3.5">
+                
+                <!-- Encabezado Ficha de Personaje -->
+                <div class="flex items-center justify-between border-b border-[#2a2e39] pb-2">
+                    <div>
+                        <span class="font-mono text-[10px] font-bold tracking-widest text-[#e6192e] uppercase block">
+                            CHARACTER // MOVE DATA
+                        </span>
+                        <h2 class="font-tekken font-extrabold italic text-2xl uppercase tracking-wide text-white leading-none">
+                            KAZUYA MISHIMA
+                        </h2>
+                    </div>
+                    <span class="font-mono text-[10px] px-2 py-0.5 bg-[#f5b800]/15 border border-[#f5b800]/50 text-[#f5b800] font-bold">
+                        MISHIMA STYLE
+                    </span>
+                </div>
+
+                <!-- UBICACIÓN 2: Retrato Principal Vertical Biselado con Canvas Eléctrico Superpuesto -->
+                <div id="kazuya-portrait-frame" class="relative w-full aspect-[4/5] bg-[#090a0d] border border-[#e6192e]/60 overflow-hidden group">
+                    <!-- Esquinas angulares decorativas estilo Tekken 8 -->
+                    <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#f5b800] z-20 pointer-events-none"></div>
+                    <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#e6192e] z-20 pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#e6192e] z-20 pointer-events-none"></div>
+                    <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#f5b800] z-20 pointer-events-none"></div>
+
+                    <!-- Imagen principal de Kazuya (SHF Tekken Kazuya) -->
+                    <img 
+                        id="kazuya-main-art"
+                        src="https://www.kapowtoys.es/uploads/2024/02/SHF-Tekken-Kazuya-5.jpg"
+                        alt="Kazuya Mishima"
+                        class="w-full h-full object-cover object-top transition-transform duration-200"
+                        onerror="handleImageFallback(this, 0)"
+                    />
+
+                    <!-- Degradado inferior HUD -->
+                    <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0b0c0e] via-[#0b0c0e]/75 to-transparent z-10 pointer-events-none"></div>
+
+                    <!-- Canvas de rayos eléctricos al acertar EWGF -->
+                    <canvas id="electric-canvas" class="absolute inset-0 w-full h-full z-20 pointer-events-none"></canvas>
+
+                    <!-- Etiqueta del movimiento -->
+                    <div class="absolute bottom-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between">
+                        <span class="font-mono text-[10px] font-bold uppercase px-2 py-0.5 bg-[#0b0c0e]/90 border border-[#2a2e39] text-[#f5b800]">
+                            DEVIL GENE // MISHIMA
+                        </span>
+                        <span id="portrait-catchphrase" class="font-tekken italic font-bold text-base text-white/95 tracking-wider">
+                            "DORYA!"
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tabla Frame Data / Technique Data Dinámica -->
+                <div id="move-data-panel" class="t8-subpanel p-3 space-y-1.5 font-mono text-xs">
+                    <div id="move-data-title" class="text-[10px] font-bold text-[#e6192e] uppercase tracking-wider border-b border-[#262a35] pb-1 mb-1">
+                        MOVE PROPERTIES // FRAME DATA
+                    </div>
+                    <div id="move-data-rows" class="space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">ATTACK LEVEL:</span>
+                            <span class="font-bold text-white">HIGH (SPECIAL)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">STARTUP:</span>
+                            <span class="font-bold text-[#f5b800]">i13 ~ i14</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">ON BLOCK:</span>
+                            <span class="font-bold text-emerald-400">+5 (PLUS FRAMES)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">ON HIT:</span>
+                            <span class="font-bold text-sky-300">LAUNCH (TORNADO)</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">DAMAGE:</span>
+                        <!-- Paso 5 exclusivo Wavedash: Cancelación de vuelta a Forward (f) -->
+                        <span id="node-sep-wd" class="text-slate-600 font-bold hidden">›</span>
+                        <div id="node-wd-f" class="w-12 h-12 t8-subpanel hidden flex-col items-center justify-center transition-all">
+                            <span id="node-wd-f-icon" class="font-mono text-xl font-extrabold leading-none text-[#f5b800]">→</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">f (DASH)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMNA CENTRAL (6 COLS): STAGE // EXECUTION MONITOR + VEREDICTO + FRAME BAR + SANWA FIGHTSTICK -->
+        <section class="lg:col-span-6 flex flex-col gap-4">
+
+            <!-- PANEL 1: STAGE // EXECUTION MONITOR CON IMAGEN AMBIENTAL EN MÁSCARA DIAGONAL -->
+            <div class="t8-panel p-4 sm:p-5 flex flex-col gap-4 overflow-hidden">
+                
+                <!-- UBICACIÓN 3: Arte lateral con máscara diagonal (clip-path) y degradado suave -->
+                <div id="stage-art-container" class="pointer-events-none absolute top-0 right-0 bottom-0 w-3/5 sm:w-1/2 t8-stage-art-mask overflow-hidden z-0">
+                    <img 
+                        id="stage-bg-art"
+                        src="https://preview.redd.it/who-is-the-best-character-and-why-is-it-kazuya-mishima-v0-u97pinmvm4he1.jpeg?auto=webp&s=f1a9d785a3178619f8050080d0eac848428f2ade"
+                        alt="Kazuya Stage Art"
+                        class="w-full h-full object-cover object-center opacity-35 transition-all duration-300"
+                        onerror="handleImageFallback(this, 1)"
+                    />
+                    <!-- Degradado de fusión con el fondo oscuro del panel -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-[#14161b] via-[#14161b]/65 to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#111318] via-transparent to-[#181b22]/80"></div>
+                </div>
+
+                <!-- Barra de Secuencia Estilo Move List de Tekken 8 -->
+                <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2a2e39] pb-4">
+                    <div>
+                        <span class="font-mono text-[10px] font-bold uppercase tracking-widest text-[#f5b800] block">
+                            STAGE // EXECUTION MONITOR
+                        </span>
+                        <span id="seq-mode-label" class="font-tekken font-bold italic text-xl uppercase text-white tracking-wide">
+                            STANDARD CROUCH DASH (1P SIDE)
+                        </span>
+                    </div>
+
+                    <!-- Nodos Interactivos de Input -->
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <!-- Paso 1: Forward -->
+                        <div id="node-f" class="w-12 h-12 t8-subpanel flex flex-col items-center justify-center transition-all">
+                            <span id="node-f-icon" class="font-mono text-xl font-extrabold leading-none text-white">→</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">f</span>
+                        </div>
+
+                        <span class="text-slate-600 font-bold">›</span>
+
+                        <!-- Paso 2: Neutral -->
+                        <div id="node-n" class="w-12 h-12 t8-subpanel flex flex-col items-center justify-center transition-all">
+                            <span class="font-mono text-lg font-extrabold leading-none text-[#f5b800]">☆</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">n</span>
+                        </div>
+
+                        <span id="node-sep-d" class="text-slate-600 font-bold">›</span>
+
+                        <!-- Paso 3: Down -->
+                        <div id="node-d" class="w-12 h-12 t8-subpanel flex flex-col items-center justify-center transition-all">
+                            <span class="font-mono text-xl font-extrabold leading-none text-white">↓</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">d</span>
+                        </div>
+
+                        <span class="text-slate-600 font-bold">›</span>
+
+                        <!-- Paso 4: Down-Forward + 2 (en EWGF) o Forward Cancel (en WAVEDASH) -->
+                        <div id="node-df2" class="px-3 h-12 t8-subpanel flex items-center gap-2 transition-all">
+                            <div class="flex flex-col items-center">
+                                <span id="node-df-icon" class="font-mono text-xl font-extrabold leading-none text-white">↘</span>
+                                <span id="node-df-text" class="font-mono text-[9px] text-slate-400 mt-0.5">d/f</span>
+                            </div>
+                            <span id="node-plus-sep" class="font-mono font-bold text-slate-400">+</span>
+                            <span id="node-btn2-badge" class="w-6 h-6 rounded-full bg-[#f5b800] text-black font-mono font-extrabold text-sm flex items-center justify-center shadow-[0_0_10px_rgba(245,184,0,0.45)]">2</span>
+                        </div>
+
+                        <!-- Paso 5 exclusivo Wavedash: Terminar en Forward (f) y toque extra Forward (f) para encadenar -->
+                        <span id="node-sep-wd" class="text-slate-600 font-bold hidden">›</span>
+                        <div id="node-wd-f" class="w-12 h-12 t8-subpanel hidden flex-col items-center justify-center transition-all">
+                            <span id="node-wd-f-icon" class="font-mono text-xl font-extrabold leading-none text-white">→</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">f</span>
+                        </div>
+                        <span id="node-sep-wd-n" class="text-slate-600 font-bold hidden">+</span>
+                        <div id="node-wd-n" class="w-12 h-12 t8-subpanel hidden flex-col items-center justify-center transition-all">
+                            <span id="node-wd-f2-icon" class="font-mono text-xl font-extrabold leading-none text-[#f5b800]">→</span>
+                            <span class="font-mono text-[9px] text-slate-400 mt-0.5">f (NEXT)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banner de Veredicto Estilo Combate de Tekken -->
+                <div class="relative z-10 py-4 px-2 flex flex-col items-center justify-center text-center min-h-[148px]">
+                    <div id="verdict-banner" class="skew-x-[-6deg] px-6 py-2.5 border-l-4 border-r-4 border-[#f5b800] bg-[#1a1d24]/95 shadow-lg">
+                        <div id="verdict-title" class="font-tekken font-extrabold italic text-3xl sm:text-4xl tracking-wider uppercase text-white leading-none">
+                            READY // EJECUTA → ☆ ↓ ↘+2
+                        </div>
+                    </div>
+                    <p id="verdict-subtitle" class="font-mono text-xs text-slate-200 mt-3 max-w-lg drop-shadow">
+                        Marca adelante, suelta a neutral (☆), baja y presiona la diagonal junto con el botón [2] en el mismo frame exacto.
+                    </p>
+                </div>
+
+                <!-- Tira Visual de Frames (Frame Bar) del Último Intento -->
+                <div class="relative z-10 t8-subpanel p-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <span class="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                            FRAME TIMELINE // ÚLTIMO INTENTO (1 BLOQUE = 16.67ms)
+                        </span>
+                        <div class="flex items-center gap-3 font-mono text-[10px] text-slate-400">
+                            <span class="flex items-center gap-1"><i class="w-2 h-2 bg-slate-200 inline-block"></i> DIR</span>
+                            <span class="flex items-center gap-1"><i class="w-2 h-2 bg-[#f5b800] inline-block"></i> ☆</span>
+                            <span class="flex items-center gap-1"><i class="w-2 h-2 bg-[#e6192e] inline-block"></i> d/f</span>
+                            <span class="flex items-center gap-1"><i class="w-2 h-2 rounded-full bg-sky-300 inline-block"></i> [2]</span>
+                        </div>
+                    </div>
+                    <div id="frame-timeline-bar" class="min-h-[48px] bg-[#090a0d] border border-[#222630] p-1.5 flex items-center gap-1 overflow-x-auto font-mono">
+                        <span class="text-[11px] text-slate-500 mx-auto">
+                            [ REALIZA UN INTENTO PARA ANALIZAR LA SINCRONIZACIÓN FRAME A FRAME ]
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 2: HARDWARE ARCADE MODERNO EN PANTALLA (SANWA JLF + BOTONES TEKKEN) -->
+            <div class="t8-panel p-4 sm:p-5">
+                <div class="flex items-center justify-between border-b border-[#2a2e39] pb-2.5 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-[#e6192e]"></span>
+                        <h3 class="font-tekken font-bold italic text-xl uppercase tracking-wider text-white">
+                            LIVE ARCADE DECK // SANWA JLF & OBSF-30
+                        </h3>
+                    </div>
+                    <span id="live-input-readout" class="font-mono text-xs font-bold px-2.5 py-0.5 bg-[#0b0c0e] border border-[#2a2e39] text-[#f5b800]">
+                        STATE: ☆ NEUTRAL
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                    
+                    <!-- Palanca Arcade Sanwa JLF con Restrictor Octogonal/Cuadrado y Bola Roja -->
+                    <div class="sm:col-span-5 flex flex-col items-center">
+                        <div id="sanwa-gate-area" class="relative w-40 h-40 rounded-full bg-[#090a0d] border-2 border-[#2e3442] shadow-[inset_0_0_24px_rgba(0,0,0,0.9)] flex items-center justify-center">
+                            <!-- Anillo restrictor octogonal/cuadrado interior -->
+                            <svg class="w-32 h-32 text-[#2d3342]" viewBox="0 0 100 100" fill="none">
+                                <polygon points="30,8 70,8 92,30 92,70 70,92 30,92 8,70 8,30" stroke="currentColor" stroke-width="2" fill="rgba(255,255,255,0.015)"/>
+                                <line x1="50" y1="6" x2="50" y2="94" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+                                <line x1="6" y1="50" x2="94" y2="50" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+                            </svg>
+
+                            <!-- Zonas clicables/táctiles invisibles en las 8 direcciones -->
+                            <div class="absolute inset-2 grid grid-cols-3 grid-rows-3 z-20">
+                                <button data-dir="7" class="stick-zone cursor-pointer" title="↖"></button>
+                                <button data-dir="8" class="stick-zone cursor-pointer" title="↑"></button>
+                                <button data-dir="9" class="stick-zone cursor-pointer" title="↗"></button>
+                                <button data-dir="4" class="stick-zone cursor-pointer" title="←"></button>
+                                <div class="pointer-events-none"></div>
+                                <button data-dir="6" class="stick-zone cursor-pointer" title="→"></button>
+                                <button data-dir="1" class="stick-zone cursor-pointer" title="↙"></button>
+                                <button data-dir="2" class="stick-zone cursor-pointer" title="↓"></button>
+                                <button data-dir="3" class="stick-zone cursor-pointer" title="↘"></button>
+                            </div>
+
+                            <!-- Eje metálico (Shaft) -->
+                            <div id="sanwa-shaft" class="absolute w-3 h-3 bg-slate-400 rounded-full z-10 pointer-events-none transition-transform duration-75"></div>
+
+                            <!-- Bola Roja Sanwa LB-35 -->
+                            <div id="sanwa-balltop" class="absolute w-12 h-12 rounded-full z-10 pointer-events-none transition-transform duration-75 shadow-[0_8px_16px_rgba(0,0,0,0.85)]"
+                                 style="background: radial-gradient(circle at 32% 28%, #ff6b7a 0%, #e6192e 48%, #7a0914 100%); border: 1px solid #ff8a96;">
+                            </div>
+                        </div>
+                        <span class="font-mono text-[10px] text-slate-400 uppercase mt-2">
+                            SANWA JLF-TP-8YT (CLICK / WASD / STICK)
+                        </span>
+                    </div>
+
+                    <!-- Botonera Arcade Tekken (1, 2, 3, 4) -->
+                    <div class="sm:col-span-7 flex flex-col items-center sm:items-start">
+                        <div class="t8-subpanel p-4 w-full flex flex-col items-center">
+                            <div class="grid grid-cols-2 gap-x-8 gap-y-4 py-1">
+                                <!-- Botón 1 (LP - Cuadrado Azul/Blanco) -->
+                                <div class="flex flex-col items-center">
+                                    <button id="arc-btn-1" class="arcade-btn-circle w-14 h-14 bg-gradient-to-b from-sky-400 to-sky-700 border-2 border-sky-200 shadow-[0_5px_0_#0c4a6e] flex flex-col items-center justify-center text-white cursor-pointer">
+                                        <span class="font-mono font-extrabold text-lg leading-none">1</span>
+                                        <span class="font-mono text-[9px] opacity-85">LP</span>
+                                    </button>
+                                </div>
+
+                                <!-- Botón 2 (RP - Triángulo Amarillo Destacado EWGF) -->
+                                <div class="flex flex-col items-center">
+                                    <button id="arc-btn-2" class="arcade-btn-circle w-16 h-16 bg-gradient-to-b from-[#ffe066] via-[#f5b800] to-[#b38600] border-2 border-white shadow-[0_5px_0_#664d00,0_0_20px_rgba(245,184,0,0.4)] flex flex-col items-center justify-center text-black cursor-pointer">
+                                        <span class="font-mono font-extrabold text-2xl leading-none">2</span>
+                                        <span class="font-mono text-[9px] font-bold">RP ★</span>
+                                    </button>
+                                </div>
+
+                                <!-- Botón 3 (LK - Cruz Verde) -->
+                                <div class="flex flex-col items-center">
+                                    <button id="arc-btn-3" class="arcade-btn-circle w-14 h-14 bg-gradient-to-b from-emerald-400 to-emerald-700 border-2 border-emerald-200 shadow-[0_5px_0_#064e3b] flex flex-col items-center justify-center text-white cursor-pointer">
+                                        <span class="font-mono font-extrabold text-lg leading-none">3</span>
+                                        <span class="font-mono text-[9px] opacity-85">LK</span>
+                                    </button>
+                                </div>
+
+                                <!-- Botón 4 (RK - Círculo Rojo) -->
+                                <div class="flex flex-col items-center">
+                                    <button id="arc-btn-4" class="arcade-btn-circle w-14 h-14 bg-gradient-to-b from-rose-500 to-rose-800 border-2 border-rose-200 shadow-[0_5px_0_#4c0519] flex flex-col items-center justify-center text-white cursor-pointer">
+                                        <span class="font-mono font-extrabold text-lg leading-none">4</span>
+                                        <span class="font-mono text-[9px] opacity-85">RK</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="key-legend-bar" class="mt-3 pt-2 border-t border-[#262a35] w-full text-center font-mono text-[10px] text-slate-400">
+                                DIR: W A S D / FLECHAS &nbsp;|&nbsp; BOTÓN [2]: I / K / U
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 3: MÉTRICAS DE SESIÓN ESTILO ARCADE -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="t8-panel p-3">
+                    <span id="stat-lbl-1" class="font-mono text-[10px] text-slate-400 uppercase block">STREAK // RACHA</span>
+                    <span id="stat-streak" class="font-tekken font-extrabold italic text-3xl text-white leading-tight">0</span>
+                </div>
+                <div class="t8-panel p-3">
+                    <span id="stat-lbl-2" class="font-mono text-[10px] text-slate-400 uppercase block">BEST // RÉCORD</span>
+                    <span id="stat-best" class="font-tekken font-extrabold italic text-3xl text-[#f5b800] leading-tight">0</span>
+                </div>
+                <div class="t8-panel p-3">
+                    <span id="stat-lbl-3" class="font-mono text-[10px] text-slate-400 uppercase block">SUCCESS RATE</span>
+                    <span id="stat-rate" class="font-tekken font-extrabold italic text-3xl text-emerald-400 leading-tight">0%</span>
+                </div>
+                <div class="t8-panel p-3 flex items-center justify-between">
+                    <div>
+                        <span id="stat-lbl-4" class="font-mono text-[10px] text-slate-400 uppercase block">TOTAL EWGF</span>
+                        <span id="stat-total" class="font-tekken font-extrabold italic text-3xl text-[#e6192e] leading-tight">0</span>
+                    </div>
+                    <button id="btn-reset-stats" class="font-mono text-[10px] text-slate-400 hover:text-white underline cursor-pointer self-end">
+                        RESET
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLUMNA DERECHA (3 COLS): COMMAND HISTORY IDÉNTICO A TEKKEN 8 PRACTICE MODE -->
+        <aside class="lg:col-span-3 t8-panel flex flex-col h-[460px] lg:h-auto lg:max-h-[820px]">
+            <div class="p-3.5 border-b border-[#2a2e39] bg-[#181b22] flex items-center justify-between">
+                <div>
+                    <h2 class="font-tekken font-extrabold italic text-xl uppercase tracking-wider text-white leading-none">
+                        COMMAND HISTORY
+                    </h2>
+                    <span id="gamepad-status-label" class="font-mono text-[10px] text-slate-400 uppercase mt-1 block">
+                        INPUT: KEYBOARD / TOUCH
+                    </span>
+                </div>
+                <button id="btn-clear-history" class="t8-btn px-2.5 py-1 bg-[#0b0c0e] hover:bg-[#e6192e] border border-[#2a2e39] font-mono text-[10px] font-bold uppercase text-slate-300 hover:text-white cursor-pointer">
+                    CLEAR
+                </button>
+            </div>
+
+            <!-- Cabecera de columnas estilo Tekken 8 -->
+            <div class="grid grid-cols-12 px-3 py-1.5 bg-[#0e1015] border-b border-[#242833] font-mono text-[10px] font-bold text-slate-400 uppercase">
+                <span class="col-span-5">DIR</span>
+                <span class="col-span-4 text-center">BTN</span>
+                <span class="col-span-3 text-right">FRAMES</span>
+            </div>
+
+            <!-- Lista de filas oscuras compactas estilo Tekken 8 -->
+            <div id="command-history-list" class="flex-grow overflow-y-auto divide-y divide-[#1f232d] font-mono bg-[#0c0e12]">
+                <div class="py-12 px-4 text-center text-xs text-slate-500">
+                    WAITING FOR INPUT...
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- MODAL DE CONFIGURACIÓN DE TECLADO Y MANDO / FIGHTSTICK USB -->
+    <div id="config-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="t8-panel max-w-lg w-full p-6">
+            <div class="flex items-center justify-between border-b border-[#2a2e39] pb-3 mb-4">
+                <div>
+                    <span class="font-mono text-[10px] font-bold text-[#e6192e] uppercase">CONTROLLER SETTINGS</span>
+                    <h3 class="font-tekken font-extrabold italic text-2xl uppercase text-white">
+                        CONFIGURAR TECLADO & FIGHTSTICK
+                    </h3>
+                </div>
+                <button id="btn-close-config" class="t8-btn px-3 py-1 bg-[#1e222b] hover:bg-[#e6192e] font-mono text-xs font-bold text-white cursor-pointer">
+                    ESC
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Remapeo de teclado -->
+                <div>
+                    <div class="font-mono text-xs font-bold text-[#f5b800] uppercase mb-2">
+                        1. TECLADO (HAZ CLIC EN UN CAMPO Y PULSA UNA TECLA)
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+                        <button data-bind="up" class="key-bind-btn t8-subpanel p-2.5 flex justify-between items-center hover:border-[#f5b800] cursor-pointer">
+                            <span class="text-slate-400">UP (↑):</span>
+                            <span id="bind-lbl-up" class="font-bold text-white">W / ArrowUp</span>
+                        </button>
+                        <button data-bind="down" class="key-bind-btn t8-subpanel p-2.5 flex justify-between items-center hover:border-[#f5b800] cursor-pointer">
+                            <span class="text-slate-400">DOWN (↓):</span>
+                            <span id="bind-lbl-down" class="font-bold text-white">S / ArrowDown</span>
+                        </button>
+                        <button data-bind="left" class="key-bind-btn t8-subpanel p-2.5 flex justify-between items-center hover:border-[#f5b800] cursor-pointer">
+                            <span class="text-slate-400">LEFT (←):</span>
+                            <span id="bind-lbl-left" class="font-bold text-white">A / ArrowLeft</span>
+                        </button>
+                        <button data-bind="right" class="key-bind-btn t8-subpanel p-2.5 flex justify-between items-center hover:border-[#f5b800] cursor-pointer">
+                            <span class="text-slate-400">RIGHT (→):</span>
+                            <span id="bind-lbl-right" class="font-bold text-white">D / ArrowRight</span>
+                        </button>
+                        <button data-bind="punch2" class="key-bind-btn col-span-2 t8-subpanel p-2.5 border-[#f5b800]/60 flex justify-between items-center hover:border-[#f5b800] cursor-pointer">
+                            <span class="font-bold text-[#f5b800]">BOTÓN [2] (RIGHT PUNCH):</span>
+                            <span id="bind-lbl-punch2" class="font-bold text-white">I / K / U</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Configuración Gamepad / Fightstick USB -->
+                <div class="border-t border-[#2a2e39] pt-3 space-y-3">
+                    <div class="font-mono text-xs font-bold text-[#f5b800] uppercase">
+                        2. MANDO / ARCADE STICK USB (GAMEPAD API)
+                    </div>
+
+                    <div class="t8-subpanel p-3 flex items-center justify-between">
+                        <div class="font-mono">
+                            <div class="text-xs font-bold text-white">ASIGNAR BOTÓN [2] EN MANDO</div>
+                            <div class="text-[11px] text-slate-400">Por defecto: Botón 3 (Triángulo / Y)</div>
+                        </div>
+                        <button id="btn-detect-gamepad" class="t8-btn px-3 py-1.5 bg-[#f5b800] text-black font-mono text-xs font-bold uppercase cursor-pointer">
+                            BTN <span id="gp-btn-lbl">3</span> [DETECTAR]
+                        </button>
+                    </div>
+
+                    <div class="t8-subpanel p-3 font-mono">
+                        <div class="flex justify-between text-xs mb-1.5">
+                            <span class="text-slate-300">ANALOG STICK DEADZONE:</span>
+                            <span id="gp-dz-lbl" class="font-bold text-[#f5b800]">0.40</span>
+                        </div>
+                        <input id="gp-dz-slider" type="range" min="0.15" max="0.75" step="0.05" value="0.40" class="w-full accent-[#e6192e] cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 pt-3 border-t border-[#2a2e39] flex items-center justify-between">
+                <button id="btn-reset-binds" class="font-mono text-xs text-slate-400 hover:text-white underline cursor-pointer">
+                    RESTAURAR DEFAULT
+                </button>
+                <button id="btn-save-config" class="t8-btn px-5 py-2 bg-[#e6192e] hover:bg-[#ff243b] text-white font-tekken font-bold italic text-lg uppercase tracking-wider cursor-pointer">
+                    GUARDAR Y VOLVER
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ============================================================================
+         * TEKKEN 8 PRACTICE // KAZUYA MISHIMA EWGF ENGINE (60.00 FPS / 16.67ms)
+         * ============================================================================
+         */
+
+        // --- 1. SINTETIZADOR DE AUDIO ARCADE (WEB AUDIO API) ---
+        class TekkenArcadeAudio {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            // Clic seco de microswitch Sanwa JLF / OBSF-30
+            playSwitch(freq = 1200) {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.016);
+
+                gain.gain.setValueAtTime(0.055, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.02);
+            }
+
+            // Trueno eléctrico + impacto contundente al ejecutar EWGF ("DORYA!")
+            playElectricHit() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+
+                // Descarga eléctrica aguda
+                const osc1 = this.ctx.createOscillator();
+                const gain1 = this.ctx.createGain();
+                osc1.type = 'sawtooth';
+                osc1.frequency.setValueAtTime(880, now);
+                osc1.frequency.exponentialRampToValueAtTime(160, now + 0.32);
+
+                gain1.gain.setValueAtTime(0.24, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+
+                osc1.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.35);
+
+                // Chispa de alta frecuencia
+                const osc2 = this.ctx.createOscillator();
+                const gain2 = this.ctx.createGain();
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(2200, now);
+                osc2.frequency.exponentialRampToValueAtTime(640, now + 0.14);
+
+                gain2.gain.setValueAtTime(0.14, now);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+                osc2.connect(gain2);
+                gain2.connect(this.ctx.destination);
+                osc2.start(now);
+                osc2.stop(now + 0.16);
+
+                // Sub-grave de impacto Tekken
+                const sub = this.ctx.createOscillator();
+                const subGain = this.ctx.createGain();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(140, now);
+                sub.frequency.exponentialRampToValueAtTime(38, now + 0.25);
+
+                subGain.gain.setValueAtTime(0.32, now);
+                subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+
+                sub.connect(subGain);
+                subGain.connect(this.ctx.destination);
+                sub.start(now);
+                sub.stop(now + 0.27);
+            }
+
+            // Golpe seco en WGF normal o fallo
+            playNormalHit() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(175, now);
+                osc.frequency.exponentialRampToValueAtTime(55, now + 0.18);
+
+                gain.gain.setValueAtTime(0.24, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.21);
+            }
+
+            // Impulso aerodinámico de Wavedash encadenado (sube el tono con la cadena)
+            playWavedashStep(chainCount = 1) {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const baseFreq = Math.min(260 + chainCount * 42, 760);
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.45, now + 0.085);
+
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.10);
+            }
+        }
+
+        const audio = new TekkenArcadeAudio();
+
+        // --- 2. RESPALDO SVG PARA LAS 3 IMÁGENES DISTRIBUIDAS ---
+        function createKazuyaFallbackSVG(idx) {
+            const titles = ['KAZUYA // 01', 'DEVIL GENE // 02', 'MISHIMA // 03'];
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#1e222d"/>
+                            <stop offset="100%" stop-color="#0b0c0e"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="300" height="300" fill="url(#g)"/>
+                    <polygon points="150,35 235,150 150,265 65,150" fill="none" stroke="#e6192e" stroke-width="3"/>
+                    <polygon points="150,55 215,150 150,245 85,150" fill="none" stroke="#f5b800" stroke-width="1.5" stroke-dasharray="6 4"/>
+                    <text x="150" y="145" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="22" text-anchor="middle">${titles[idx] || 'KAZUYA'}</text>
+                    <text x="150" y="172" fill="#f5b800" font-family="monospace" font-size="13" text-anchor="middle">MISHIMA ZAIBATSU</text>
+                </svg>
+            `;
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        window.handleImageFallback = function(imgEl, idx) {
+            imgEl.onerror = null;
+            imgEl.src = createKazuyaFallbackSVG(idx);
+        };
+
+        // --- 3. EFECTOS DE RAYOS ELÉCTRICOS EN CANVAS SOBRE RETRATO DE KAZUYA ---
+        const electricCanvas = document.getElementById('electric-canvas');
+        const eCtx = electricCanvas.getContext('2d');
+        let lightningBolts = [];
+        let flashAlpha = 0;
+
+        function resizeElectricCanvas() {
+            const rect = electricCanvas.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+                electricCanvas.width = rect.width;
+                electricCanvas.height = rect.height;
+            }
+        }
+
+        function triggerElectricCanvasEffect() {
+            resizeElectricCanvas();
+            const w = electricCanvas.width;
+            const h = electricCanvas.height;
+            flashAlpha = 0.75;
+            lightningBolts = [];
+
+            for (let b = 0; b < 7; b++) {
+                const points = [];
+                let x = w * (0.15 + Math.random() * 0.7);
+                let y = 0;
+                points.push({ x, y });
+                const steps = 9;
+                for (let s = 1; s <= steps; s++) {
+                    x += (Math.random() - 0.5) * 58;
+                    y = (h / steps) * s;
+                    points.push({ x, y });
+                }
+                lightningBolts.push({
+                    points,
+                    life: 1.0,
+                    color: b % 2 === 0 ? '#ffffff' : '#7dd3fc'
+                });
+            }
+        }
+
+        function renderElectricCanvas() {
+            const w = electricCanvas.width;
+            const h = electricCanvas.height;
+            if (!w || !h) return;
+
+            eCtx.clearRect(0, 0, w, h);
+
+            if (flashAlpha > 0.01) {
+                eCtx.fillStyle = `rgba(248, 250, 252, ${flashAlpha})`;
+                eCtx.fillRect(0, 0, w, h);
+                flashAlpha *= 0.82;
+            }
+
+            lightningBolts.forEach(bolt => {
+                if (bolt.life <= 0) return;
+                eCtx.save();
+                eCtx.beginPath();
+                eCtx.moveTo(bolt.points[0].x, bolt.points[0].y);
+                for (let i = 1; i < bolt.points.length; i++) {
+                    eCtx.lineTo(bolt.points[i].x, bolt.points[i].y);
+                }
+                eCtx.strokeStyle = bolt.color;
+                eCtx.lineWidth = 2.5 * bolt.life;
+                eCtx.shadowColor = '#38bdf8';
+                eCtx.shadowBlur = 14;
+                eCtx.globalAlpha = bolt.life;
+                eCtx.stroke();
+                eCtx.restore();
+                bolt.life -= 0.065;
+            });
+
+            lightningBolts = lightningBolts.filter(b => b.life > 0);
+        }
+
+        // --- 4. CONFIGURACIÓN DE CONTROLES Y ESTADO DE ENTRADA ---
+        const DEFAULT_BINDS = {
+            up: ['KeyW', 'ArrowUp'],
+            down: ['KeyS', 'ArrowDown'],
+            left: ['KeyA', 'ArrowLeft'],
+            right: ['KeyD', 'ArrowRight'],
+            punch2: ['KeyI', 'KeyK', 'KeyU', 'Numpad2']
+        };
+
+        let binds = JSON.parse(localStorage.getItem('t8_ewgf_binds')) || JSON.parse(JSON.stringify(DEFAULT_BINDS));
+        let gpBtn2Index = parseInt(localStorage.getItem('t8_ewgf_gp_btn2') || '3', 10);
+        let gpDeadzone = parseFloat(localStorage.getItem('t8_ewgf_gp_dz') || '0.40');
+
+        let mode = 'normal'; // 'normal' | 'mist' | 'wavedash'
+        let side = 'P1';     // 'P1' | 'P2'
+
+        let listeningBindKey = null;
+        let listeningGamepadBtn = false;
+
+        const heldKeys = new Set();
+        const virtualInput = { up: false, down: false, left: false, right: false, punch1: false, punch2: false, kick3: false, kick4: false };
+
+        const stats = {
+            attempts: 0,
+            ewgf: 0,
+            streak: 0,
+            best: 0
+        };
+
+        // Telemetría exclusiva del modo WAVEDASH
+        const wdStats = {
+            chain: 0,
+            bestChain: 0,
+            totalDashes: 0,
+            lastCycleFrames: 0,
+            wds: 0.0,
+            chainStartFrame: 0
+        };
+
+        // --- 5. MOTOR DETERMINISTA A 60.00 FPS (16.666ms) ---
+        const FPS = 60;
+        const FRAME_MS = 1000 / FPS;
+
+        let frameCounter = 0;
+        let prevDir = 5;
+        let prevAnyAttack = false;
+
+        let historyRows = [];
+        const MAX_HISTORY_ROWS = 48;
+
+        const WINDOW_FRAMES = 32;
+        const WD_MAX_STEP_FRAMES = 38;
+        let attempt = null;
+        let wdState = null;
+        let verdictResetTimer = null;
+
+        function clearVerdictResetTimer() {
+            if (verdictResetTimer !== null) {
+                clearTimeout(verdictResetTimer);
+                verdictResetTimer = null;
+            }
+        }
+
+        function setReadyBannerState() {
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.style.background = 'rgba(26, 29, 36, 0.95)';
+            banner.style.borderColor = '#f5b800';
+            banner.style.boxShadow = 'none';
+            title.style.color = '#ffffff';
+
+            if (side === 'P1') {
+                if (mode === 'wavedash') {
+                    title.textContent = 'READY // WAVEDASH: → ☆ ↓ ↘ → →';
+                    subtitle.textContent = 'Haz → ☆ ↓ ↘ → y da otro toque a → antes de soltar a ☆ para encadenar (→ ☆ ↓ ↘ →  → ☆ ↓ ↘ →...).';
+                } else {
+                    title.textContent = mode === 'normal' ? 'READY // EJECUTA → ☆ ↓ ↘+2' : 'READY // EJECUTA → ☆ ↘+2';
+                    subtitle.textContent = 'Marca adelante, suelta a neutral (☆), baja y presiona la diagonal junto con el botón [2] en el mismo frame exacto.';
+                }
+            } else {
+                if (mode === 'wavedash') {
+                    title.textContent = 'READY // WAVEDASH: ← ☆ ↓ ↙ ← ←';
+                    subtitle.textContent = 'Haz ← ☆ ↓ ↙ ← y da otro toque a ← antes de soltar a ☆ para encadenar (← ☆ ↓ ↙ ←  ← ☆ ↓ ↙ ←...).';
+                } else {
+                    title.textContent = mode === 'normal' ? 'READY // EJECUTA ← ☆ ↓ ↙+2' : 'READY // EJECUTA ← ☆ ↙+2';
+                    subtitle.textContent = 'Marca adelante, suelta a neutral (☆), baja y presiona la diagonal junto con el botón [2] en el mismo frame exacto.';
+                }
+            }
+
+            highlightNodes(null);
+        }
+
+        function scheduleVerdictReset() {
+            clearVerdictResetTimer();
+            verdictResetTimer = setTimeout(() => {
+                verdictResetTimer = null;
+                if ((!attempt || !attempt.active || attempt.finished) && (!wdState || wdState.stage === 0)) {
+                    setReadyBannerState();
+                }
+            }, 5000);
+        }
+
+        function resetWavedashState() {
+            wdState = {
+                stage: 0, // 0: esperando f, 1: f marcado (esperando n), 2: n marcado (esperando d), 3: d marcado (esperando d/f), 4: d/f marcado (esperando f cancel), 5: f cancelado (esperando tap f para encadenar)
+                stepStartFrame: 0,
+                framesLog: []
+            };
+            highlightNodes(null);
+        }
+
+        function resetAttempt() {
+            attempt = {
+                active: false,
+                startFrame: 0,
+                hasForward: false,
+                hasNeutral: false,
+                hasDown: false,
+                dfFrame: null,
+                btn2Frame: null,
+                framesLog: [],
+                finished: false
+            };
+            resetWavedashState();
+            highlightNodes(null);
+        }
+        resetAttempt();
+
+        const DIR_NAMES = {
+            1: '↙', 2: '↓', 3: '↘',
+            4: '←', 5: '☆', 6: '→',
+            7: '↖', 8: '↑', 9: '↗'
+        };
+
+        function getTargetDirs() {
+            return side === 'P1'
+                ? { f: 6, df: 3, b: 4, db: 1 }
+                : { f: 4, df: 1, b: 6, db: 3 };
+        }
+
+        function getTekkenArrowSVG(dir, isHighlight = false) {
+            if (dir === 5) {
+                return `<span class="inline-flex items-center justify-center w-5 h-5 text-[#f5b800] font-extrabold text-sm">☆</span>`;
+            }
+            const angles = { 6: 0, 3: 45, 2: 90, 1: 135, 4: 180, 7: 225, 8: 270, 9: 315 };
+            const rot = angles[dir] ?? 0;
+            const fill = isHighlight ? '#e6192e' : '#e2e8f0';
+            return `
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" style="transform: rotate(${rot}deg)">
+                    <path d="M3 9h10V5l8 7-8 7v-4H3V9z" fill="${fill}"/>
+                </svg>
+            `;
+        }
+
+        // --- 6. LECTURA DE ENTRADAS (TECLADO, GAMEPAD Y TÁCTIL) ---
+        function pollInputs() {
+            let up = virtualInput.up || binds.up.some(c => heldKeys.has(c));
+            let down = virtualInput.down || binds.down.some(c => heldKeys.has(c));
+            let left = virtualInput.left || binds.left.some(c => heldKeys.has(c));
+            let right = virtualInput.right || binds.right.some(c => heldKeys.has(c));
+            let punch2 = virtualInput.punch2 || binds.punch2.some(c => heldKeys.has(c));
+            let otherAttack = virtualInput.punch1 || virtualInput.kick3 || virtualInput.kick4;
+
+            const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+            let activePad = null;
+
+            for (let i = 0; i < pads.length; i++) {
+                const gp = pads[i];
+                if (!gp) continue;
+                activePad = gp;
+
+                if (listeningGamepadBtn) {
+                    for (let b = 0; b < gp.buttons.length; b++) {
+                        if (gp.buttons[b] && gp.buttons[b].pressed) {
+                            gpBtn2Index = b;
+                            localStorage.setItem('t8_ewgf_gp_btn2', String(b));
+                            listeningGamepadBtn = false;
+                            refreshModalLabels();
+                            break;
+                        }
+                    }
+                }
+
+                if (gp.buttons[12]?.pressed) up = true;
+                if (gp.buttons[13]?.pressed) down = true;
+                if (gp.buttons[14]?.pressed) left = true;
+                if (gp.buttons[15]?.pressed) right = true;
+
+                if (gp.axes && gp.axes.length >= 2) {
+                    if (gp.axes[0] < -gpDeadzone) left = true;
+                    if (gp.axes[0] > gpDeadzone) right = true;
+                    if (gp.axes[1] < -gpDeadzone) up = true;
+                    if (gp.axes[1] > gpDeadzone) down = true;
+                }
+
+                if (gp.buttons[gpBtn2Index]?.pressed) punch2 = true;
+                [0, 1, 2].forEach(idx => {
+                    if (idx !== gpBtn2Index && gp.buttons[idx]?.pressed) otherAttack = true;
+                });
+            }
+
+            updateGamepadBadge(activePad);
+
+            const x = (right ? 1 : 0) - (left ? 1 : 0);
+            const y = (up ? 1 : 0) - (down ? 1 : 0);
+
+            let dir = 5;
+            if (y === 1) dir = x === -1 ? 7 : (x === 1 ? 9 : 8);
+            else if (y === -1) dir = x === -1 ? 1 : (x === 1 ? 3 : 2);
+            else dir = x === -1 ? 4 : (x === 1 ? 6 : 5);
+
+            return { dir, punch2, otherAttack, x, y };
+        }
+
+        // --- 7. EVALUACIÓN FRAME A FRAME (EWGF Y WAVEDASH) ---
+        function stepFrame(dir, punch2, otherAttack, x, y) {
+            frameCounter++;
+            const target = getTargetDirs();
+            const anyAttack = punch2 || otherAttack;
+
+            if (dir !== prevDir) {
+                audio.playSwitch(dir === 5 ? 880 : 1240);
+            }
+
+            updateLiveStickHardware(dir, punch2, x, y);
+
+            // Actualizar historial vertical estilo Tekken 8
+            if (dir !== prevDir || punch2 !== (historyRows[0]?.punch2 ?? false)) {
+                historyRows.unshift({
+                    dir,
+                    punch2,
+                    frames: 1,
+                    isElectric: false
+                });
+                if (historyRows.length > MAX_HISTORY_ROWS) historyRows.pop();
+                renderCommandHistory();
+            } else if (historyRows.length > 0) {
+                historyRows[0].frames = Math.min(historyRows[0].frames + 1, 999);
+                updateTopHistoryFrames();
+            }
+
+            // Modo WAVEDASH
+            if (mode === 'wavedash') {
+                evaluateWavedashFrame(dir, anyAttack, target);
+                prevDir = dir;
+                prevAnyAttack = anyAttack;
+                return;
+            }
+
+            // Modo EWGF (Standard / Mist Step)
+            const pressed2ThisFrame = punch2 && !prevAnyAttack;
+
+            // Detectar inicio de Crouch Dash al marcar adelante (f) sin botón 2
+            if (dir === target.f && prevDir !== target.f && !punch2) {
+                clearVerdictResetTimer();
+                resetAttempt();
+                attempt.active = true;
+                attempt.startFrame = frameCounter;
+                attempt.hasForward = true;
+                highlightNodes('f');
+            }
+
+            if (attempt.active && !attempt.finished) {
+                attempt.framesLog.push({ dir, punch2 });
+
+                if (dir === 5 && attempt.hasForward && !attempt.hasNeutral) {
+                    attempt.hasNeutral = true;
+                    highlightNodes('n');
+                }
+
+                if (dir === 2 && attempt.hasNeutral && !attempt.hasDown) {
+                    attempt.hasDown = true;
+                    highlightNodes('d');
+                }
+
+                if (dir === target.df && attempt.dfFrame === null) {
+                    attempt.dfFrame = frameCounter;
+                    highlightNodes('df2');
+                }
+
+                if (pressed2ThisFrame && attempt.btn2Frame === null) {
+                    attempt.btn2Frame = frameCounter;
+                }
+
+                const elapsed = frameCounter - attempt.startFrame;
+
+                if (attempt.btn2Frame !== null) {
+                    attempt.finished = true;
+                    resolveAttempt();
+                } else if (elapsed > WINDOW_FRAMES) {
+                    attempt.finished = true;
+                    resolveAttempt(true);
+                }
+            } else if (pressed2ThisFrame) {
+                clearVerdictResetTimer();
+                stats.attempts++;
+                stats.streak = 0;
+                resolveStandaloneFail('BOTÓN [2] SIN CROUCH DASH', 'Primero marca adelante (→) y suelta a neutral (☆) antes de pulsar [2].');
+            }
+
+            prevDir = dir;
+            prevAnyAttack = anyAttack;
+        }
+
+        function evaluateWavedashFrame(dir, anyAttack, target) {
+            if (anyAttack && !prevAnyAttack) {
+                if (wdState.stage > 0 || wdStats.chain > 0) {
+                    breakWavedashChain('Has pulsado un botón de ataque. El Wavedash se ejecuta solo con palanca (→ ☆ ↓ ↘ →).');
+                }
+                return;
+            }
+
+            if (wdState.stage > 0) {
+                wdState.framesLog.push({ dir, punch2: false });
+                if (frameCounter - wdState.stepStartFrame > WD_MAX_STEP_FRAMES) {
+                    if (wdStats.chain > 0) {
+                        finishWavedashSeries();
+                    } else {
+                        breakWavedashChain(`Tiempo agotado (>${WD_MAX_STEP_FRAMES}f). Completa → ☆ ↓ ↘ → de forma fluida.`);
+                    }
+                    return;
+                }
+            }
+
+            if (wdState.stage === 0) {
+                // Inicio del Crouch Dash: marcar adelante (f)
+                if (dir === target.f && prevDir !== target.f) {
+                    clearVerdictResetTimer();
+                    wdState.stage = 1;
+                    wdState.stepStartFrame = frameCounter;
+                    wdState.framesLog = [{ dir, punch2: false }];
+                    highlightNodes('f');
+                }
+            } else if (wdState.stage === 1) {
+                // Paso 2: soltar a neutral (☆)
+                if (dir === 5) {
+                    wdState.stage = 2;
+                    highlightNodes('n');
+                } else if (dir === 2 || dir === target.df) {
+                    breakWavedashChain('Faltó el punto neutral (☆) después de marcar adelante (→).');
+                } else if (dir !== target.f) {
+                    breakWavedashChain('Dirección incorrecta tras adelante (→). Suelta a neutral (☆) y baja.');
+                }
+            } else if (wdState.stage === 2) {
+                // Paso 3: bajar (↓) — en Wavedash clásico debe pasar por ↓ (o Mist Step d/f)
+                if (dir === 2) {
+                    wdState.stage = 3;
+                    highlightNodes('d');
+                } else if (dir === target.df) {
+                    wdState.stage = 4;
+                    highlightNodes('df2');
+                } else if (dir !== 5) {
+                    breakWavedashChain('Dirección incorrecta desde neutral (☆). Baja a (↓).');
+                }
+            } else if (wdState.stage === 3) {
+                // Paso 4: OBLIGATORIO pasar por la diagonal adelante-abajo (↘ / s+d)
+                if (dir === target.df) {
+                    wdState.stage = 4;
+                    highlightNodes('df2');
+                } else if (dir === target.f) {
+                    breakWavedashChain('Faltó la diagonal (↘ / s+d). No sueltes abajo (↓) antes de pulsar adelante (→).');
+                } else if (dir === 5) {
+                    if (wdStats.chain > 0) {
+                        finishWavedashSeries();
+                    } else {
+                        breakWavedashChain('Soltaste a neutral antes de deslizar a la diagonal (↘) y adelante (→).');
+                    }
+                } else if (dir !== 2) {
+                    breakWavedashChain('Tras bajar (↓) debes pulsar adelante manteniendo abajo para marcar la diagonal (↘).');
+                }
+            } else if (wdState.stage === 4) {
+                // Paso 5: tras marcar la diagonal (↘), soltar abajo quedando en adelante (→)
+                if (dir === target.f) {
+                    completeWavedashStep();
+                } else if (dir === 5) {
+                    if (wdStats.chain > 0) {
+                        finishWavedashSeries();
+                    } else {
+                        breakWavedashChain('Termina el paso soltando abajo (↓) antes que adelante (→) para salir en →.');
+                    }
+                } else if (dir === 2) {
+                    breakWavedashChain('Volviste a abajo (↓) sin completar adelante (→).');
+                } else if (dir !== target.df) {
+                    breakWavedashChain('Tras la diagonal (↘), suelta abajo para quedarte en adelante (→).');
+                }
+            } else if (wdState.stage === 5) {
+                // Tras completar → ☆ ↓ ↘ →: debe soltar a neutral (☆) y dar el toque extra de adelante (→)
+                if (dir === 5) {
+                    wdState.stage = 6;
+                    highlightNodes('wd_n');
+                } else if (dir === 2 || dir === target.df) {
+                    breakWavedashChain('Faltó soltar a neutral (☆) y dar el toque extra de adelante (→) antes de bajar (↓).');
+                } else if (dir !== target.f) {
+                    breakWavedashChain('Dirección incorrecta al encadenar. Suelta a neutral (☆) y pulsa adelante (→).');
+                }
+            } else if (wdState.stage === 6) {
+                // Obligatorio el segundo toque de adelante (→) para iniciar el siguiente Crouch Dash: d (neutral) s d/f d  d (neutral)...
+                if (dir === target.f) {
+                    wdState.stage = 1;
+                    wdState.stepStartFrame = frameCounter;
+                    wdState.framesLog = [{ dir: target.f, punch2: false }];
+                    highlightNodes('f');
+                } else if (dir === 2 || dir === target.df) {
+                    breakWavedashChain('Faltó el toque extra de adelante (→) después del neutral (☆) antes de bajar (↓).');
+                } else if (dir !== 5) {
+                    breakWavedashChain('Tras el neutral (☆), marca adelante (→) para iniciar el siguiente Wavedash.');
+                }
+            }
+        }
+
+        function completeWavedashStep() {
+            const target = getTargetDirs();
+            const cycleFrames = Math.max(1, frameCounter - wdState.stepStartFrame);
+            wdStats.lastCycleFrames = cycleFrames;
+            wdStats.totalDashes++;
+
+            if (wdStats.chain === 0) {
+                wdStats.chain = 1;
+                wdStats.chainStartFrame = wdState.stepStartFrame;
+            } else {
+                wdStats.chain++;
+            }
+
+            if (wdStats.chain > wdStats.bestChain) {
+                wdStats.bestChain = wdStats.chain;
+            }
+
+            const totalChainFrames = Math.max(1, frameCounter - wdStats.chainStartFrame);
+            wdStats.wds = wdStats.chain === 1
+                ? (FPS / cycleFrames)
+                : ((wdStats.chain - 1) * FPS) / totalChainFrames;
+
+            renderFrameTimeline(wdState.framesLog);
+            updateStatsUI();
+            audio.playWavedashStep(wdStats.chain);
+
+            if (wdStats.chain >= 3) {
+                triggerElectricCanvasEffect();
+                const portrait = document.getElementById('kazuya-main-art');
+                if (portrait) {
+                    portrait.classList.remove('portrait-electric-hit');
+                    void portrait.offsetWidth;
+                    portrait.classList.add('portrait-electric-hit');
+                }
+            }
+
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.classList.remove('verdict-impact');
+            void banner.offsetWidth;
+            banner.classList.add('verdict-impact');
+
+            const isFast = wdStats.chain >= 3;
+            banner.style.background = isFast
+                ? 'linear-gradient(90deg, rgba(245,184,0,0.24), rgba(26,29,36,0.96), rgba(56,189,248,0.24))'
+                : 'rgba(26, 29, 36, 0.96)';
+            banner.style.borderColor = isFast ? '#f5b800' : '#34d399';
+            banner.style.boxShadow = isFast ? '0 0 22px rgba(245,184,0,0.35)' : 'none';
+            title.style.color = '#ffffff';
+            title.innerHTML = `WAVEDASH <span class="text-[#f5b800]">×${wdStats.chain}</span> // <span class="text-sky-300">${cycleFrames}f (${wdStats.wds.toFixed(1)} WD/s)</span>`;
+            subtitle.textContent = side === 'P1'
+                ? '¡Bien! Suelta, da otro toque a → (neutral) y repite ↓ ↘ → para encadenar.'
+                : '¡Bien! Suelta, da otro toque a ← (neutral) y repite ↓ ↙ ← para encadenar.';
+
+            // Pasa a stage 5 esperando que suelte y dé el toque extra de adelante (→) antes de (☆) ↓ ↘ →
+            wdState.stage = 5;
+            wdState.stepStartFrame = frameCounter;
+            wdState.framesLog = [{ dir: target.f, punch2: false }];
+            highlightNodes('wd_loop');
+            scheduleVerdictReset();
+        }
+
+        function finishWavedashSeries() {
+            const totalChain = wdStats.chain;
+            const avgWds = wdStats.wds;
+            if (wdState.framesLog.length > 0) {
+                renderFrameTimeline(wdState.framesLog);
+            }
+            wdStats.chain = 0;
+            wdStats.wds = 0;
+            resetWavedashState();
+            updateStatsUI();
+
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.style.background = 'rgba(26, 29, 36, 0.96)';
+            banner.style.borderColor = '#38bdf8';
+            banner.style.boxShadow = 'none';
+            title.style.color = '#7dd3fc';
+            title.textContent = `SERIE COMPLETADA // ×${totalChain} WAVEDASHES`;
+            subtitle.textContent = `Velocidad media: ${avgWds.toFixed(1)} WD/s. Vuelve a marcar → ☆ ↓ ↘ → para iniciar otra serie.`;
+            scheduleVerdictReset();
+        }
+
+        function breakWavedashChain(reason) {
+            const hadChain = wdStats.chain > 0;
+            const prevChain = wdStats.chain;
+            if (wdState.framesLog.length > 0) {
+                renderFrameTimeline(wdState.framesLog);
+            }
+            wdStats.chain = 0;
+            wdStats.wds = 0;
+            resetWavedashState();
+            updateStatsUI();
+
+            audio.playNormalHit();
+
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.classList.remove('verdict-impact');
+            void banner.offsetWidth;
+            banner.classList.add('verdict-impact');
+
+            banner.style.background = '#241215';
+            banner.style.borderColor = '#e6192e';
+            banner.style.boxShadow = 'none';
+            title.style.color = '#ff4d5e';
+            title.textContent = hadChain ? `CADENA TERMINADA (×${prevChain} WAVEDASHES)` : 'WAVEDASH FALLIDO';
+            subtitle.textContent = reason;
+            scheduleVerdictReset();
+        }
+
+        // --- 8. VEREDICTO Y FEEDBACK VISUAL (EWGF) ---
+        function resolveStandaloneFail(titleText, subText) {
+            updateStatsUI();
+            audio.playNormalHit();
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.classList.remove('verdict-impact');
+            void banner.offsetWidth;
+            banner.classList.add('verdict-impact');
+
+            banner.style.background = '#241215';
+            banner.style.borderColor = '#e6192e';
+            banner.style.boxShadow = 'none';
+            title.style.color = '#ff4d5e';
+            title.textContent = titleText;
+            subtitle.textContent = subText;
+            scheduleVerdictReset();
+        }
+
+        function resolveAttempt(timedOut = false) {
+            renderFrameTimeline(attempt.framesLog);
+            stats.attempts++;
+
+            const banner = document.getElementById('verdict-banner');
+            const title = document.getElementById('verdict-title');
+            const subtitle = document.getElementById('verdict-subtitle');
+
+            banner.classList.remove('verdict-impact');
+            void banner.offsetWidth;
+            banner.classList.add('verdict-impact');
+
+            const needsDown = mode === 'normal';
+            const hasRequiredSteps = attempt.hasForward && attempt.hasNeutral && (!needsDown || attempt.hasDown);
+
+            if (!timedOut && hasRequiredSteps && attempt.dfFrame !== null && attempt.btn2Frame !== null) {
+                const diff = attempt.btn2Frame - attempt.dfFrame;
+
+                if (diff === 0) {
+                    // ¡JUST FRAME EXACTO! ELECTRIC WIND GOD FIST
+                    stats.ewgf++;
+                    stats.streak++;
+                    if (stats.streak > stats.best) stats.best = stats.streak;
+
+                    if (historyRows.length > 0) {
+                        historyRows[0].isElectric = true;
+                        renderCommandHistory();
+                    }
+
+                    audio.playElectricHit();
+                    triggerElectricCanvasEffect();
+
+                    const portrait = document.getElementById('kazuya-main-art');
+                    if (portrait) {
+                        portrait.classList.remove('portrait-electric-hit');
+                        void portrait.offsetWidth;
+                        portrait.classList.add('portrait-electric-hit');
+                    }
+
+                    const stageBg = document.getElementById('stage-bg-art');
+                    if (stageBg) {
+                        stageBg.classList.remove('stage-art-electric');
+                        void stageBg.offsetWidth;
+                        stageBg.classList.add('stage-art-electric');
+                    }
+
+                    banner.style.background = 'linear-gradient(90deg, rgba(245,184,0,0.28), rgba(26,29,36,0.96), rgba(56,189,248,0.28))';
+                    banner.style.borderColor = '#f5b800';
+                    banner.style.boxShadow = '0 0 28px rgba(245,184,0,0.45)';
+                    title.style.color = '#ffffff';
+                    title.innerHTML = `¡DORYA! // <span class="text-[#f5b800]">EWGF PERFECTO</span> <span class="text-sky-300">(Δ0f)</span>`;
+                    subtitle.textContent = `Sincronización exacta en el mismo frame (16.67ms). +5 frames en bloqueo y launcher eléctrico.`;
+                } else if (diff > 0) {
+                    // WGF normal (botón 2 presionado tarde)
+                    stats.streak = 0;
+                    audio.playNormalHit();
+
+                    banner.style.background = '#231f14';
+                    banner.style.borderColor = '#f5b800';
+                    banner.style.boxShadow = 'none';
+                    title.style.color = '#f5b800';
+                    title.textContent = `WGF NORMAL // +${diff}f TARDE`;
+                    subtitle.textContent = `Pulsaste [2] ${diff} frame${diff > 1 ? 's' : ''} (${(diff * FRAME_MS).toFixed(1)}ms) después de la diagonal. Pulsa [2] un poco antes.`;
+                } else {
+                    // Botón 2 presionado antes de llegar a la diagonal
+                    stats.streak = 0;
+                    audio.playNormalHit();
+
+                    banner.style.background = '#241215';
+                    banner.style.borderColor = '#e6192e';
+                    banner.style.boxShadow = 'none';
+                    title.style.color = '#ff4d5e';
+                    title.textContent = `BOTÓN [2] TEMPRANO // ${diff}f`;
+                    subtitle.textContent = `Pulsaste [2] ${Math.abs(diff)} frame${Math.abs(diff) > 1 ? 's' : ''} antes de marcar la diagonal.`;
+                }
+            } else {
+                stats.streak = 0;
+                audio.playNormalHit();
+
+                banner.style.background = '#241215';
+                banner.style.borderColor = '#e6192e';
+                banner.style.boxShadow = 'none';
+                title.style.color = '#ff4d5e';
+
+                if (!attempt.hasNeutral) {
+                    title.textContent = 'SIN NEUTRAL (☆) // INPUT FALLIDO';
+                    subtitle.textContent = 'Debes soltar la palanca/tecla al centro (☆) al menos 1 frame después de marcar adelante.';
+                } else if (needsDown && !attempt.hasDown) {
+                    title.textContent = 'SIN ABAJO (↓) // INPUT INCOMPLETO';
+                    subtitle.textContent = 'En modo Standard debes marcar ↓ antes de la diagonal, o cambia arriba a modo MIST STEP.';
+                } else if (attempt.dfFrame === null) {
+                    title.textContent = 'SIN DIAGONAL (↘) // INPUT INCOMPLETO';
+                    subtitle.textContent = 'Pulsaste [2] antes de completar la diagonal adelante-abajo.';
+                } else {
+                    title.textContent = 'TIMING EXCEDIDO // DEMASIADO LENTO';
+                    subtitle.textContent = 'La secuencia superó la ventana de 32 frames. Ejecuta el movimiento más rápido.';
+                }
+            }
+
+            updateStatsUI();
+            scheduleVerdictReset();
+        }
+
+        // --- 9. ACTUALIZACIÓN DE INTERFAZ Y HARDWARE EN PANTALLA ---
+        function highlightNodes(activeStep) {
+            const nodes = ['node-f', 'node-n', 'node-d', 'node-df2', 'node-wd-f', 'node-wd-n'];
+            nodes.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.borderColor = '#262a35';
+                el.style.background = 'rgba(11, 12, 14, 0.72)';
+                el.style.boxShadow = 'none';
+            });
+
+            const map = {
+                f: 'node-f',
+                n: 'node-n',
+                d: 'node-d',
+                df2: 'node-df2',
+                wd_loop: 'node-wd-f',
+                wd_n: 'node-wd-n'
+            };
+
+            const targetId = map[activeStep];
+            if (targetId) {
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    targetEl.style.borderColor = '#f5b800';
+                    targetEl.style.background = 'rgba(245, 184, 0, 0.16)';
+                    targetEl.style.boxShadow = '0 0 14px rgba(245, 184, 0, 0.35)';
+                }
+            }
+        }
+
+        function updateLiveStickHardware(dir, punch2, x, y) {
+            const readout = document.getElementById('live-input-readout');
+            const dirLabel = dir === 5 ? '☆ NEUTRAL' : `${DIR_NAMES[dir]} (${dir})`;
+            readout.textContent = `STATE: ${dirLabel}${punch2 ? ' + [2]' : ''}`;
+
+            const balltop = document.getElementById('sanwa-balltop');
+            const shaft = document.getElementById('sanwa-shaft');
+            const maxOffset = 34;
+            const norm = (x !== 0 && y !== 0) ? 0.7071 : 1;
+            const tx = x * maxOffset * norm;
+            const ty = -y * maxOffset * norm;
+
+            if (balltop) balltop.style.transform = `translate(${tx}px, ${ty}px)`;
+            if (shaft) shaft.style.transform = `translate(${tx * 0.55}px, ${ty * 0.55}px)`;
+
+            const btnMap = {
+                'arc-btn-1': virtualInput.punch1,
+                'arc-btn-2': punch2,
+                'arc-btn-3': virtualInput.kick3,
+                'arc-btn-4': virtualInput.kick4
+            };
+            Object.entries(btnMap).forEach(([id, pressed]) => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('is-pressed', !!pressed);
+            });
+        }
+
+        function renderCommandHistory() {
+            const list = document.getElementById('command-history-list');
+            if (!list) return;
+
+            if (historyRows.length === 0) {
+                list.innerHTML = `<div class="py-12 px-4 text-center text-xs text-slate-500">WAITING FOR INPUT...</div>`;
+                return;
+            }
+
+            list.innerHTML = historyRows.map((row, index) => {
+                const rowBg = row.isElectric
+                    ? 'bg-gradient-to-r from-[#f5b800]/25 via-[#181b22] to-[#0c0e12] border-l-2 border-l-[#f5b800]'
+                    : (index === 0 ? 'bg-[#161922]' : '');
+
+                const btnBadge = row.punch2
+                    ? `<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#f5b800] text-black font-extrabold text-[11px] shadow-[0_0_8px_rgba(245,184,0,0.45)]">2</span>`
+                    : `<span class="text-slate-600">-</span>`;
+
+                return `
+                    <div class="grid grid-cols-12 items-center px-3 py-1.5 text-xs ${rowBg}">
+                        <div class="col-span-5 flex items-center gap-2">
+                            ${getTekkenArrowSVG(row.dir, row.isElectric)}
+                            <span class="text-[11px] font-bold ${row.dir === 5 ? 'text-[#f5b800]' : 'text-slate-300'}">${DIR_NAMES[row.dir]}</span>
+                        </div>
+                        <div class="col-span-4 text-center">${btnBadge}</div>
+                        <div class="col-span-3 text-right font-bold ${row.isElectric ? 'text-sky-300' : 'text-slate-400'}">${row.frames}f</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateTopHistoryFrames() {
+            const list = document.getElementById('command-history-list');
+            if (!list || !list.firstElementChild || historyRows.length === 0) return;
+            const frameCol = list.firstElementChild.children[2];
+            if (frameCol) {
+                frameCol.textContent = `${historyRows[0].frames}f`;
+            }
+        }
+
+        function renderFrameTimeline(framesLog) {
+            const bar = document.getElementById('frame-timeline-bar');
+            if (!bar) return;
+
+            if (!framesLog || framesLog.length === 0) {
+                bar.innerHTML = `<span class="text-[11px] text-slate-500 mx-auto">[ REALIZA UN INTENTO PARA ANALIZAR LA SINCRONIZACIÓN FRAME A FRAME ]</span>`;
+                return;
+            }
+
+            const target = getTargetDirs();
+            bar.innerHTML = framesLog.map((f, idx) => {
+                let bg = 'bg-slate-200 text-black';
+                if (f.dir === 5) bg = 'bg-[#f5b800] text-black';
+                else if (f.dir === target.df) bg = 'bg-[#e6192e] text-white';
+
+                return `
+                    <div class="shrink-0 w-7 h-9 ${bg} flex flex-col items-center justify-between py-0.5 px-1 text-[10px] font-bold relative">
+                        <span class="text-[8px] opacity-75">${idx + 1}</span>
+                        <span class="leading-none">${DIR_NAMES[f.dir]}</span>
+                        ${f.punch2 ? '<span class="w-2.5 h-2.5 rounded-full bg-sky-300 border border-black"></span>' : '<span class="h-2.5"></span>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStatsUI() {
+            const lbl1 = document.getElementById('stat-lbl-1');
+            const lbl2 = document.getElementById('stat-lbl-2');
+            const lbl3 = document.getElementById('stat-lbl-3');
+            const lbl4 = document.getElementById('stat-lbl-4');
+
+            const v1 = document.getElementById('stat-streak');
+            const v2 = document.getElementById('stat-best');
+            const v3 = document.getElementById('stat-rate');
+            const v4 = document.getElementById('stat-total');
+
+            if (mode === 'wavedash') {
+                lbl1.textContent = 'CHAIN // PASOS';
+                lbl2.textContent = 'BEST CHAIN';
+                lbl3.textContent = 'SPEED (WD/s)';
+                lbl4.textContent = 'LAST CYCLE';
+
+                v1.textContent = wdStats.chain;
+                v2.textContent = wdStats.bestChain;
+                v3.textContent = wdStats.wds.toFixed(1);
+                v4.textContent = wdStats.lastCycleFrames > 0 ? `${wdStats.lastCycleFrames}f` : '0f';
+            } else {
+                lbl1.textContent = 'STREAK // RACHA';
+                lbl2.textContent = 'BEST // RÉCORD';
+                lbl3.textContent = 'SUCCESS RATE';
+                lbl4.textContent = 'TOTAL EWGF';
+
+                const rate = stats.attempts > 0 ? Math.round((stats.ewgf / stats.attempts) * 100) : 0;
+                v1.textContent = stats.streak;
+                v2.textContent = stats.best;
+                v3.textContent = `${rate}%`;
+                v4.textContent = stats.ewgf;
+            }
+        }
+
+        function syncModeAndSideUI() {
+            // Botones de modo
+            const modeBtns = {
+                normal: document.getElementById('btn-mode-normal'),
+                mist: document.getElementById('btn-mode-mist'),
+                wavedash: document.getElementById('btn-mode-wavedash')
+            };
+            Object.entries(modeBtns).forEach(([k, btn]) => {
+                if (!btn) return;
+                if (k === mode) {
+                    btn.className = 'px-2.5 sm:px-3 py-1 font-tekken font-bold italic text-sm sm:text-base tracking-wider uppercase transition cursor-pointer bg-[#e6192e] text-white';
+                } else {
+                    btn.className = 'px-2.5 sm:px-3 py-1 font-tekken font-bold italic text-sm sm:text-base tracking-wider uppercase transition cursor-pointer text-slate-400 hover:text-white';
+                }
+            });
+
+            // Botones de lado P1 / P2
+            const btnP1 = document.getElementById('btn-side-p1');
+            const btnP2 = document.getElementById('btn-side-p2');
+            if (side === 'P1') {
+                btnP1.className = 'px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer bg-[#f5b800] text-black';
+                btnP2.className = 'px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer text-slate-400 hover:text-white';
+            } else {
+                btnP2.className = 'px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer bg-[#f5b800] text-black';
+                btnP1.className = 'px-2.5 py-1 font-mono text-xs font-bold uppercase transition cursor-pointer text-slate-400 hover:text-white';
+            }
+
+            // Iconos direccionales de la secuencia según 1P o 2P
+            const fArrow = side === 'P1' ? '→' : '←';
+            const dfArrow = side === 'P1' ? '↘' : '↙';
+            const dfLabel = side === 'P1' ? 'd/f' : 'd/b';
+
+            document.getElementById('node-f-icon').textContent = fArrow;
+            document.getElementById('node-df-icon').textContent = dfArrow;
+            document.getElementById('node-df-text').textContent = dfLabel;
+            document.getElementById('node-wd-f-icon').textContent = fArrow;
+            const wdF2Icon = document.getElementById('node-wd-f2-icon');
+            if (wdF2Icon) wdF2Icon.textContent = fArrow;
+
+            const nodeD = document.getElementById('node-d');
+            const sepD = document.getElementById('node-sep-d');
+            const plusSep = document.getElementById('node-plus-sep');
+            const badge2 = document.getElementById('node-btn2-badge');
+            const sepWd = document.getElementById('node-sep-wd');
+            const nodeWdF = document.getElementById('node-wd-f');
+            const sepWdN = document.getElementById('node-sep-wd-n');
+            const nodeWdN = document.getElementById('node-wd-n');
+            const seqLabel = document.getElementById('seq-mode-label');
+
+            const moveDataTitle = document.getElementById('move-data-title');
+            const moveDataRows = document.getElementById('move-data-rows');
+
+            if (mode === 'wavedash') {
+                seqLabel.textContent = `MISHIMA WAVEDASH (${side} SIDE)`;
+                nodeD.classList.remove('hidden');
+                sepD.classList.remove('hidden');
+                plusSep.classList.add('hidden');
+                badge2.classList.add('hidden');
+                sepWd.classList.remove('hidden');
+                nodeWdF.classList.remove('hidden');
+                nodeWdF.classList.add('flex');
+                if (sepWdN) sepWdN.classList.remove('hidden');
+                if (nodeWdN) {
+                    nodeWdN.classList.remove('hidden');
+                    nodeWdN.classList.add('flex');
+                }
+
+                moveDataTitle.textContent = 'TECHNIQUE // MISHIMA WAVEDASH';
+                moveDataRows.innerHTML = `
+                    <div class="flex justify-between"><span class="text-slate-400">INPUT (1 PASO):</span><span class="font-bold text-white">${fArrow} ☆ ↓ ${dfArrow} ${fArrow}</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">ENCADENAR:</span><span class="font-bold text-sky-300">${fArrow} ☆ ↓ ${dfArrow} ${fArrow} + ${fArrow} ☆ ↓...</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">MECHANIC:</span><span class="font-bold text-[#f5b800]">CROUCH DASH CANCEL</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">HIGH EVASION:</span><span class="font-bold text-emerald-400">HIGH CRUSH WINDOW</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">MIXUP OPTIONS:</span><span class="font-bold text-white">EWGF / HELLSWEEP / FF3</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">OPTIMAL PACE:</span><span class="font-bold text-sky-300">9f ~ 16f PER STEP</span></div>
+                `;
+            } else {
+                const isMist = mode === 'mist';
+                seqLabel.textContent = isMist ? `MIST STEP CROUCH DASH (${side} SIDE)` : `STANDARD CROUCH DASH (${side} SIDE)`;
+                nodeD.classList.toggle('hidden', isMist);
+                sepD.classList.toggle('hidden', isMist);
+                plusSep.classList.remove('hidden');
+                badge2.classList.remove('hidden');
+                sepWd.classList.add('hidden');
+                nodeWdF.classList.add('hidden');
+                nodeWdF.classList.remove('flex');
+                if (sepWdN) sepWdN.classList.add('hidden');
+                if (nodeWdN) {
+                    nodeWdN.classList.add('hidden');
+                    nodeWdN.classList.remove('flex');
+                }
+
+                moveDataTitle.textContent = 'MOVE PROPERTIES // FRAME DATA';
+                moveDataRows.innerHTML = `
+                    <div class="flex justify-between"><span class="text-slate-400">ATTACK LEVEL:</span><span class="font-bold text-white">HIGH (SPECIAL)</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">STARTUP:</span><span class="font-bold text-[#f5b800]">i13 ~ i14</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">ON BLOCK:</span><span class="font-bold text-emerald-400">+5 (PLUS FRAMES)</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">ON HIT:</span><span class="font-bold text-sky-300">LAUNCH (TORNADO)</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">DAMAGE:</span><span class="font-bold text-white">23 DMG</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">JUST FRAME:</span><span class="font-bold text-[#e6192e]">d/f + 2 (1 FRAME)</span></div>
+                `;
+            }
+
+            clearVerdictResetTimer();
+            resetAttempt();
+            setReadyBannerState();
+            updateStatsUI();
+        }
+
+        function updateGamepadBadge(gp) {
+            const label = document.getElementById('gamepad-status-label');
+            if (!label) return;
+            if (gp) {
+                const shortId = gp.id.split('(')[0].trim().slice(0, 24).toUpperCase();
+                label.textContent = `PAD: ${shortId}`;
+                label.classList.remove('text-slate-400');
+                label.classList.add('text-emerald-400');
+            } else {
+                label.textContent = 'INPUT: KEYBOARD / TOUCH';
+                label.classList.remove('text-emerald-400');
+                label.classList.add('text-slate-400');
+            }
+        }
+
+        function formatKeyName(code) {
+            return code.replace('Key', '').replace('Arrow', '').replace('Numpad', 'Num');
+        }
+
+        function refreshModalLabels() {
+            ['up', 'down', 'left', 'right', 'punch2'].forEach(k => {
+                const el = document.getElementById(`bind-lbl-${k}`);
+                if (el) {
+                    el.textContent = listeningBindKey === k
+                        ? '[ PULSA UNA TECLA... ]'
+                        : binds[k].map(formatKeyName).join(' / ');
+                }
+            });
+
+            const gpBtnLbl = document.getElementById('gp-btn-lbl');
+            if (gpBtnLbl) gpBtnLbl.textContent = gpBtn2Index;
+
+            const detBtn = document.getElementById('btn-detect-gamepad');
+            if (detBtn) {
+                detBtn.textContent = listeningGamepadBtn
+                    ? 'PULSA BOTÓN EN MANDO...'
+                    : `BTN ${gpBtn2Index} [DETECTAR]`;
+            }
+
+            const dzLbl = document.getElementById('gp-dz-lbl');
+            const dzSlider = document.getElementById('gp-dz-slider');
+            if (dzLbl) dzLbl.textContent = gpDeadzone.toFixed(2);
+            if (dzSlider) dzSlider.value = gpDeadzone;
+
+            const legend = document.getElementById('key-legend-bar');
+            if (legend) {
+                const dirs = `${binds.up[0] ? formatKeyName(binds.up[0]) : 'W'} ${binds.left[0] ? formatKeyName(binds.left[0]) : 'A'} ${binds.down[0] ? formatKeyName(binds.down[0]) : 'S'} ${binds.right[0] ? formatKeyName(binds.right[0]) : 'D'}`;
+                const p2 = binds.punch2.map(formatKeyName).join(' / ');
+                legend.innerHTML = `DIR: ${dirs} &nbsp;|&nbsp; BOTÓN [2]: ${p2}`;
+            }
+        }
+
+        // --- 10. EVENTOS DE TECLADO, RATÓN / TÁCTIL Y MODAL ---
+        window.addEventListener('keydown', (e) => {
+            if (listeningBindKey) {
+                e.preventDefault();
+                if (e.code === 'Escape') {
+                    listeningBindKey = null;
+                    refreshModalLabels();
+                    return;
+                }
+                binds[listeningBindKey] = [e.code];
+                localStorage.setItem('t8_ewgf_binds', JSON.stringify(binds));
+                listeningBindKey = null;
+                refreshModalLabels();
+                return;
+            }
+
+            if (e.code === 'Escape') {
+                const modal = document.getElementById('config-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    listeningGamepadBtn = false;
+                }
+            }
+
+            heldKeys.add(e.code);
+        });
+
+        window.addEventListener('keyup', (e) => {
+            heldKeys.delete(e.code);
+        });
+
+        window.addEventListener('blur', () => {
+            heldKeys.clear();
+            Object.keys(virtualInput).forEach(k => { virtualInput[k] = false; });
+        });
+
+        // Zonas táctiles / clic de la palanca Sanwa JLF
+        function setVirtualDirFromCode(dirCode) {
+            const d = Number(dirCode);
+            virtualInput.up = (d === 7 || d === 8 || d === 9);
+            virtualInput.down = (d === 1 || d === 2 || d === 3);
+            virtualInput.left = (d === 7 || d === 4 || d === 1);
+            virtualInput.right = (d === 9 || d === 6 || d === 3);
+        }
+
+        function clearVirtualDir() {
+            virtualInput.up = false;
+            virtualInput.down = false;
+            virtualInput.left = false;
+            virtualInput.right = false;
+        }
+
+        document.querySelectorAll('.stick-zone').forEach(zone => {
+            const dirCode = zone.getAttribute('data-dir');
+            zone.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                setVirtualDirFromCode(dirCode);
+            });
+            zone.addEventListener('pointerup', clearVirtualDir);
+            zone.addEventListener('pointerleave', clearVirtualDir);
+            zone.addEventListener('pointercancel', clearVirtualDir);
+        });
+
+        // Botones arcade en pantalla (1, 2, 3, 4)
+        const arcadeBtnBindings = [
+            { id: 'arc-btn-1', key: 'punch1' },
+            { id: 'arc-btn-2', key: 'punch2' },
+            { id: 'arc-btn-3', key: 'kick3' },
+            { id: 'arc-btn-4', key: 'kick4' }
+        ];
+        arcadeBtnBindings.forEach(({ id, key }) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                virtualInput[key] = true;
+            });
+            const release = () => { virtualInput[key] = false; };
+            btn.addEventListener('pointerup', release);
+            btn.addEventListener('pointerleave', release);
+            btn.addEventListener('pointercancel', release);
+        });
+
+        // Selectores de Modo y Lado
+        document.getElementById('btn-mode-normal').addEventListener('click', () => {
+            mode = 'normal';
+            syncModeAndSideUI();
+        });
+        document.getElementById('btn-mode-mist').addEventListener('click', () => {
+            mode = 'mist';
+            syncModeAndSideUI();
+        });
+        document.getElementById('btn-mode-wavedash').addEventListener('click', () => {
+            mode = 'wavedash';
+            syncModeAndSideUI();
+        });
+        document.getElementById('btn-side-p1').addEventListener('click', () => {
+            side = 'P1';
+            syncModeAndSideUI();
+        });
+        document.getElementById('btn-side-p2').addEventListener('click', () => {
+            side = 'P2';
+            syncModeAndSideUI();
+        });
+
+        // Audio Toggle
+        document.getElementById('btn-audio').addEventListener('click', () => {
+            audio.enabled = !audio.enabled;
+            const dot = document.getElementById('audio-dot');
+            const text = document.getElementById('audio-text');
+            if (audio.enabled) {
+                audio.init();
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]';
+                text.textContent = 'SFX ON';
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-slate-500';
+                text.textContent = 'SFX OFF';
+            }
+        });
+
+        // Reset Stats & Clear History
+        document.getElementById('btn-reset-stats').addEventListener('click', () => {
+            stats.attempts = 0;
+            stats.ewgf = 0;
+            stats.streak = 0;
+            stats.best = 0;
+            wdStats.chain = 0;
+            wdStats.bestChain = 0;
+            wdStats.totalDashes = 0;
+            wdStats.lastCycleFrames = 0;
+            wdStats.wds = 0;
+            updateStatsUI();
+        });
+
+        document.getElementById('btn-clear-history').addEventListener('click', () => {
+            historyRows = [];
+            renderCommandHistory();
+            renderFrameTimeline([]);
+        });
+
+        // Modal Controles
+        const configModal = document.getElementById('config-modal');
+        document.getElementById('btn-open-config').addEventListener('click', () => {
+            refreshModalLabels();
+            configModal.classList.remove('hidden');
+            configModal.classList.add('flex');
+        });
+        document.getElementById('btn-close-config').addEventListener('click', () => {
+            listeningBindKey = null;
+            listeningGamepadBtn = false;
+            configModal.classList.add('hidden');
+            configModal.classList.remove('flex');
+        });
+        document.getElementById('btn-save-config').addEventListener('click', () => {
+            listeningBindKey = null;
+            listeningGamepadBtn = false;
+            configModal.classList.add('hidden');
+            configModal.classList.remove('flex');
+        });
+
+        document.querySelectorAll('.key-bind-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                listeningBindKey = btn.getAttribute('data-bind');
+                listeningGamepadBtn = false;
+                refreshModalLabels();
+            });
+        });
+
+        document.getElementById('btn-detect-gamepad').addEventListener('click', () => {
+            listeningGamepadBtn = !listeningGamepadBtn;
+            listeningBindKey = null;
+            refreshModalLabels();
+        });
+
+        document.getElementById('gp-dz-slider').addEventListener('input', (e) => {
+            gpDeadzone = parseFloat(e.target.value);
+            localStorage.setItem('t8_ewgf_gp_dz', String(gpDeadzone));
+            refreshModalLabels();
+        });
+
+        document.getElementById('btn-reset-binds').addEventListener('click', () => {
+            binds = JSON.parse(JSON.stringify(DEFAULT_BINDS));
+            gpBtn2Index = 3;
+            gpDeadzone = 0.40;
+            localStorage.setItem('t8_ewgf_binds', JSON.stringify(binds));
+            localStorage.setItem('t8_ewgf_gp_btn2', '3');
+            localStorage.setItem('t8_ewgf_gp_dz', '0.40');
+            listeningBindKey = null;
+            listeningGamepadBtn = false;
+            refreshModalLabels();
+        });
+
+        // --- 11. BUCLE PRINCIPAL DE RENDER Y SIMULACIÓN A 60.00 FPS ---
+        let lastTime = 0;
+        let accumulator = 0;
+
+        function mainLoop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const delta = Math.min(timestamp - lastTime, 100);
+            lastTime = timestamp;
+            accumulator += delta;
+
+            while (accumulator >= FRAME_MS) {
+                const { dir, punch2, otherAttack, x, y } = pollInputs();
+                stepFrame(dir, punch2, otherAttack, x, y);
+                accumulator -= FRAME_MS;
+            }
+
+            renderElectricCanvas();
+            requestAnimationFrame(mainLoop);
+        }
+
+        window.addEventListener('resize', resizeElectricCanvas);
+
+        window.onload = function () {
+            resizeElectricCanvas();
+            refreshModalLabels();
+            syncModeAndSideUI();
+            requestAnimationFrame(mainLoop);
+        };
+    </script>
+</body>
+</html>
