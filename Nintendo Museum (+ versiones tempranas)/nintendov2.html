@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nintendo Museum — Guía Interactiva Oficial | Uji, Kioto</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            nintendo: {
+              red: '#E60012',
+              darkRed: '#B8000E',
+              lightRed: '#FF2A3B',
+              gold: '#F59E0B',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Transiciones personalizadas suaves para SPA y subpáginas */
+    @keyframes fadeSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .page-transition {
+      animation: fadeSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .subpage-transition {
+      animation: fadeSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Patrón sutil estilo bloques / cuadrícula Nintendo */
+    .nintendo-grid-pattern {
+      background-image: radial-gradient(rgba(230, 0, 18, 0.14) 1.25px, transparent 1.25px);
+      background-size: 22px 22px;
+    }
+
+    .dark .nintendo-grid-pattern {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.25px, transparent 1.25px);
+      background-size: 22px 22px;
+    }
+
+    /* Estilo de barra de desplazamiento */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.5);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E60012;
+    }
+
+    /* Efecto brillo en tarjeta de ticket */
+    .ticket-shimmer {
+      background: linear-gradient(
+        125deg,
+        rgba(255, 255, 255, 0) 30%,
+        rgba(255, 255, 255, 0.18) 50%,
+        rgba(255, 255, 255, 0) 70%
+      );
+      background-size: 200% 200%;
+      animation: shimmerMove 4.5s infinite linear;
+    }
+
+    @keyframes shimmerMove {
+      0% { background-position: 150% 0; }
+      100% { background-position: -150% 0; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-300 min-h-screen flex flex-col selection:bg-nintendo-red selection:text-white">
+
+  <!-- =========================================================
+       BARRA DE NAVEGACIÓN SUPERIOR RESPONSIVE
+       ========================================================= -->
+  <header class="sticky top-0 z-50 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-zinc-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        
+        <!-- Logo Nintendo Museum -->
+        <button onclick="navigateTo('inicio')" class="flex items-center gap-3 group focus:outline-none text-left">
+          <div class="bg-nintendo-red text-white px-3.5 py-1.5 rounded-full font-black tracking-tight text-base sm:text-lg shadow-md shadow-red-600/20 group-hover:scale-105 transition-transform">
+            Nintendo
+          </div>
+          <div class="flex flex-col">
+            <span class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white leading-none">
+              MUSEUM
+            </span>
+            <span class="text-[11px] font-medium text-slate-500 dark:text-zinc-400 tracking-wider uppercase mt-0.5">
+              Uji • Kyoto Guide
+            </span>
+          </div>
+        </button>
+
+        <!-- Menú Escritorio -->
+        <nav class="hidden md:flex items-center gap-1.5 bg-slate-100/90 dark:bg-zinc-800/80 p-1.5 rounded-2xl border border-slate-200/60 dark:border-zinc-700/60" aria-label="Navegación principal">
+          <button data-nav="inicio" onclick="navigateTo('inicio')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+            Inicio
+          </button>
+          <button data-nav="historia" onclick="navigateTo('historia')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+            Historia
+          </button>
+          <button data-nav="que-ver" onclick="navigateTo('que-ver')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+            Qué ver
+          </button>
+          <button data-nav="entradas" onclick="navigateTo('entradas')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5">
+            <span>Entradas</span>
+            <span class="w-2 h-2 rounded-full bg-nintendo-red animate-pulse"></span>
+          </button>
+          <button data-nav="faq" onclick="navigateTo('faq')" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200">
+            Dudas (FAQ)
+          </button>
+        </nav>
+
+        <!-- Controles Derecha: Modo Oscuro/Claro + Botón Menú Móvil -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Interruptor Tema Claro / Oscuro -->
+          <button id="themeToggle" onclick="toggleTheme()" aria-label="Cambiar modo claro u oscuro" class="p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700 transition-all active:scale-95 flex items-center gap-2">
+            <!-- Icono Sol (visible en dark mode) -->
+            <svg id="sunIcon" class="w-5 h-5 text-amber-400 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <!-- Icono Luna (visible en light mode) -->
+            <svg id="moonIcon" class="w-5 h-5 text-slate-700 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <span class="hidden lg:inline text-xs font-semibold" id="themeLabel">Modo Oscuro</span>
+          </button>
+
+          <!-- Botón Hamburguesa Móvil -->
+          <button id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Abrir menú" class="md:hidden p-2.5 rounded-2xl bg-nintendo-red text-white shadow-md shadow-red-600/20 active:scale-95 transition-transform">
+            <svg id="menuOpenIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="menuCloseIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menú Desplegable Móvil -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 pt-3 pb-5 space-y-1.5 shadow-xl">
+      <button data-nav="inicio" onclick="navigateTo('inicio'); toggleMobileMenu(false)" class="mobile-nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-3">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Inicio y Ubicación</span>
+      </button>
+      <button data-nav="historia" onclick="navigateTo('historia'); toggleMobileMenu(false)" class="mobile-nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-3">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Historia del Museo</span>
+      </button>
+      <button data-nav="que-ver" onclick="navigateTo('que-ver'); toggleMobileMenu(false)" class="mobile-nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-3">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <span>Qué ver (Exhibiciones y Zonas)</span>
+      </button>
+      <button data-nav="entradas" onclick="navigateTo('entradas'); toggleMobileMenu(false)" class="mobile-nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-3">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        <span>Comprar Entradas</span>
+      </button>
+      <button data-nav="faq" onclick="navigateTo('faq'); toggleMobileMenu(false)" class="mobile-nav-btn w-full text-left px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-3">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Dudas Frecuentes (FAQ)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       CONTENEDOR PRINCIPAL DE PANTALLAS (SPA)
+       ========================================================= -->
+  <main id="appContainer" class="flex-grow">
+
+    <!-- =======================================================
+         PANTALLA 1: INICIO (PRINCIPAL)
+         ======================================================= -->
+    <section id="view-inicio" class="spa-view page-transition">
+      <!-- Hero Banner con Imagen Real -->
+      <div class="relative overflow-hidden bg-zinc-950 text-white">
+        <img
+          src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1800&q=80"
+          alt="Arquitectura tradicional y moderna en Kioto, Japón"
+          onerror="this.onerror=null;this.src='https://placehold.co/1800x900/99000d/ffffff?text=Nintendo+Museum+Uji+Kyoto';"
+          class="absolute inset-0 w-full h-full object-cover opacity-35"
+        />
+        <div class="absolute inset-0 bg-gradient-to-br from-nintendo-red/90 via-red-800/85 to-zinc-950/95"></div>
+        <div class="absolute inset-0 opacity-15 nintendo-grid-pattern"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24 relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div class="lg:col-span-7 space-y-6">
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-xs sm:text-sm font-semibold tracking-wide">
+                <span class="w-2 h-2 rounded-full bg-amber-300 animate-ping"></span>
+                <span>Uji, Kioto • Japón — Inaugurado en Octubre 2024</span>
+              </div>
+
+              <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
+                Descubre más de <span class="text-amber-300">135 años</span> de historia y juego.
+              </h1>
+
+              <p class="text-base sm:text-lg text-red-50/95 max-w-2xl leading-relaxed">
+                Bienvenido a la guía del <strong>Nintendo Museum</strong>. Explora la antigua fábrica de Uji Ogura transformada en un espacio dedicado a la creatividad: desde las cartas Hanafuda de 1889 hasta experiencias interactivas a gran escala.
+              </p>
+
+              <div class="flex flex-wrap gap-3.5 pt-2">
+                <button onclick="navigateTo('que-ver')" class="px-6 py-3.5 rounded-2xl bg-white text-nintendo-red font-extrabold text-sm sm:text-base shadow-xl shadow-black/20 hover:bg-amber-50 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                  <span>Explorar el Museo</span>
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </button>
+                <button onclick="navigateTo('entradas')" class="px-6 py-3.5 rounded-2xl bg-black/30 hover:bg-black/45 text-white border border-white/30 font-bold text-sm sm:text-base backdrop-blur-sm hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+                  <span>Reservar Entradas</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tarjeta Visual Destacada en el Hero -->
+            <div class="lg:col-span-5">
+              <div class="bg-white/10 backdrop-blur-md border border-white/25 rounded-3xl overflow-hidden shadow-2xl">
+                <div class="relative h-44 w-full overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=900&q=80"
+                    alt="Hardware clásico y estética retro de videojuegos"
+                    onerror="this.onerror=null;this.src='https://placehold.co/900x450/7f1d1d/ffffff?text=Nintendo+Museum+Archive';"
+                    class="w-full h-full object-cover"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                  <div class="absolute bottom-3 left-5 right-5 flex items-end justify-between">
+                    <div>
+                      <p class="text-[11px] uppercase tracking-widest text-amber-300 font-bold">Ficha Técnica</p>
+                      <h2 class="text-lg font-extrabold text-white">Nintendo Museum (Uji Ogura)</h2>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl bg-nintendo-red text-white font-black text-xs tracking-wider">KYOTO</span>
+                  </div>
+                </div>
+
+                <div class="p-6 space-y-4">
+                  <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-black/25 rounded-2xl p-3.5 border border-white/10">
+                      <p class="text-red-200 text-xs font-medium">Ubicación</p>
+                      <p class="font-bold text-white mt-0.5">Uji, Prefectura de Kioto</p>
+                    </div>
+                    <div class="bg-black/25 rounded-2xl p-3.5 border border-white/10">
+                      <p class="text-red-200 text-xs font-medium">Horario Habitual</p>
+                      <p class="font-bold text-white mt-0.5">10:00 – 18:00 JST</p>
+                    </div>
+                    <div class="bg-black/25 rounded-2xl p-3.5 border border-white/10">
+                      <p class="text-red-200 text-xs font-medium">Día de Cierre</p>
+                      <p class="font-bold text-white mt-0.5">Martes y Año Nuevo</p>
+                    </div>
+                    <div class="bg-black/25 rounded-2xl p-3.5 border border-white/10">
+                      <p class="text-red-200 text-xs font-medium">Monedas Digitales</p>
+                      <p class="font-bold text-amber-300 mt-0.5">10 Coins incluidas / pase</p>
+                    </div>
+                  </div>
+
+                  <div class="bg-white/15 rounded-2xl p-3.5 flex items-center gap-3 text-xs sm:text-sm">
+                    <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-red-50">Acceso mediante <strong>reserva previa con fecha y franja horaria asignada</strong>.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Tópicos Principales del Museo (Cards con Imágenes Reales) -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+          <div>
+            <span class="text-nintendo-red font-extrabold text-xs uppercase tracking-widest">¿Qué te espera dentro?</span>
+            <h2 class="text-2xl sm:text-3xl font-black tracking-tight mt-1">Los 6 Pilares del Nintendo Museum</h2>
+          </div>
+          <button onclick="navigateTo('que-ver')" class="text-sm font-bold text-nintendo-red hover:underline flex items-center gap-1.5 self-start sm:self-auto">
+            <span>Ver guía detallada por plantas</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card 1: Exhibiciones Históricas -->
+          <div onclick="navigateTo('que-ver', 'galeria')" class="cursor-pointer group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-nintendo-red/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-zinc-800">
+                <img
+                  src="https://images.unsplash.com/photo-1531525645387-7f14be1bdbbd?auto=format&fit=crop&w=800&q=80"
+                  alt="Consolas clásicas de Nintendo en exhibición"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/e60012/ffffff?text=Galeria+Historica';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+                  2ª Planta • Exhibición
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold group-hover:text-nintendo-red transition-colors">Galería Histórica</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2.5 leading-relaxed">
+                  Un recorrido visual imponente con cada consola, accesorio, juguete mecánico previo a los videojuegos y evolución gráfica de franquicias como Mario y Zelda.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-nintendo-red">
+              <span>Explorar galería</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 2: Experiencias Interactivas -->
+          <div onclick="navigateTo('que-ver', 'interactivo')" class="cursor-pointer group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-nintendo-red/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-zinc-800">
+                <img
+                  src="https://images.unsplash.com/photo-1592840496694-26d035b52b48?auto=format&fit=crop&w=800&q=80"
+                  alt="Mandos y controles interactivos de videojuegos"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/d97706/ffffff?text=Zona+Interactiva';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+                  1ª Planta • Zona de Juego
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold group-hover:text-nintendo-red transition-colors">8 Experiencias Interactivas</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2.5 leading-relaxed">
+                  Usa tus 10 monedas digitales para jugar con mandos gigantes en pareja, batear en la sala Ultra Machine SP o disparar con Zapper y Super Scope en pantalla gigante.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-nintendo-red">
+              <span>Ver las 8 atracciones</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 3: Taller Hanafuda -->
+          <div onclick="navigateTo('que-ver', 'talleres')" class="cursor-pointer group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-nintendo-red/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-zinc-800">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hanafuda_cards.jpg/800px-Hanafuda_cards.jpg"
+                  alt="Baraja tradicional japonesa de cartas Hanafuda"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/059669/ffffff?text=Cartas+Hanafuda';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Edificio de Talleres
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold group-hover:text-nintendo-red transition-colors">Taller de Cartas Hanafuda</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2.5 leading-relaxed">
+                  Vuelve a los orígenes de 1889 fabricando y pintando tus propias cartas tradicionales japonesas Hanafuda o aprende a jugar con mesas interactivas asistidas.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-nintendo-red">
+              <span>Descubrir talleres</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 4: Hatena Burger -->
+          <div onclick="navigateTo('que-ver', 'tienda-cafe')" class="cursor-pointer group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-nintendo-red/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-zinc-800">
+                <img
+                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80"
+                  alt="Hamburguesa gourmet personalizada en cafetería Hatena Burger"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/ea580c/ffffff?text=Hatena+Burger';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Gastronomía Temática
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold group-hover:text-nintendo-red transition-colors">Cafetería Hatena Burger</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2.5 leading-relaxed">
+                  Diseña tu propia hamburguesa eligiendo pan, carne e ingredientes especiales de Kioto con más de 270.000 combinaciones posibles y bebidas temáticas.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-nintendo-red">
+              <span>Ver menú y detalles</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 5: Tienda Bonus Stage -->
+          <div onclick="navigateTo('que-ver', 'tienda-cafe')" class="cursor-pointer group bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:border-nintendo-red/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-zinc-800">
+                <img
+                  src="https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=800&q=80"
+                  alt="Artículos coleccionables y controles retro en tienda Bonus Stage"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/4f46e5/ffffff?text=Bonus+Stage+Shop';"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/75 text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm">
+                  Merchandising Exclusivo
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold group-hover:text-nintendo-red transition-colors">Tienda Bonus Stage</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2.5 leading-relaxed">
+                  Artículos que solo se venden dentro del museo: cojines gigantes con forma de mandos de Famicom, N64 o Wii, llaveros de consolas y papelería retro.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between text-xs font-bold text-nintendo-red">
+              <span>Ver productos estrella</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 6: Plaza & Exteriores Uji Ogura -->
+          <div onclick="navigateTo('historia')" class="cursor-pointer group bg-gradient-to-br from-slate-900 to-zinc-800 dark:from-zinc-800 dark:to-zinc-900 text-white rounded-3xl overflow-hidden border border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div class="relative h-48 w-full overflow-hidden bg-zinc-800">
+                <img
+                  src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=800&q=80"
+                  alt="Entorno arquitectónico en Uji, Kioto"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/18181b/ffffff?text=Planta+Uji+Ogura';"
+                  class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+                />
+                <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-black uppercase tracking-wider">
+                  Arquitectura con Alma
+                </span>
+              </div>
+              <div class="p-6 pb-2">
+                <h3 class="text-xl font-extrabold mt-1">La Antigua Planta Uji Ogura</h3>
+                <p class="text-sm text-slate-300 mt-2.5 leading-relaxed">
+                  El museo aprovecha la estructura real de la fábrica donde Nintendo producía cartas y reparaba consolas desde 1969, incluyendo la icónica tubería verde de entrada.
+                </p>
+              </div>
+            </div>
+            <div class="px-6 pb-6 pt-4 mt-4 border-t border-white/15 flex items-center justify-between text-xs font-bold text-amber-300">
+              <span>Conocer su historia completa</span>
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Ubicación y Google Maps Interactivo -->
+      <div class="bg-slate-100/80 dark:bg-zinc-900/60 border-y border-slate-200/80 dark:border-zinc-800 py-14 sm:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+            
+            <!-- Detalles de Ubicación (6 columnas) -->
+            <div class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between space-y-6">
+              <div class="space-y-4">
+                <div>
+                  <span class="text-nintendo-red font-extrabold text-xs uppercase tracking-widest">Planifica tu viaje</span>
+                  <h2 class="text-2xl sm:text-3xl font-black mt-1">Ubicación y Cómo Llegar</h2>
+                  <p class="text-sm sm:text-base text-slate-600 dark:text-zinc-400 mt-2">
+                    El museo se encuentra en <strong>56 Kaguraden, Ogura-cho, Uji-shi, Kioto 611-0042, Japón</strong>. No dispone de aparcamiento para visitantes, por lo que el acceso recomendado es mediante transporte ferroviario.
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60">
+                    <div class="flex items-center gap-2 font-extrabold text-xs uppercase tracking-wider text-nintendo-red">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 5h8m-4 5v3m-6 0h12a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span>Línea Kintetsu Kyoto</span>
+                    </div>
+                    <p class="font-bold text-base mt-1.5">Estación Ogura (Salida Este)</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">A solo <strong>5 minutos a pie</strong> hasta la entrada principal del museo.</p>
+                  </div>
+
+                  <div class="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200/60 dark:border-zinc-700/60">
+                    <div class="flex items-center gap-2 font-extrabold text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 5h8m-4 5v3m-6 0h12a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      <span>Línea JR Nara</span>
+                    </div>
+                    <p class="font-bold text-base mt-1.5">Estación JR Ogura</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">A unos <strong>8 minutos a pie</strong> cruzando el barrio residencial de Ogura.</p>
+                  </div>
+                </div>
+
+                <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
+                  <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <div class="text-xs sm:text-sm text-amber-900 dark:text-amber-200">
+                    <strong>Tiempos aproximados en tren:</strong> 20 minutos desde la Estación de Kioto (vía Kintetsu) y 55 minutos desde Osaka-Namba.
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3">
+                <button onclick="copyAddress()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-xs font-bold text-slate-800 dark:text-zinc-200 transition-colors flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span>Copiar dirección postal</span>
+                </button>
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Nintendo+Museum+56+Kaguraden+Oguracho+Uji+Kyoto"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-4 py-2.5 rounded-xl bg-nintendo-red hover:bg-nintendo-darkRed text-white text-xs font-extrabold transition-colors flex items-center gap-2 shadow-sm"
+                >
+                  <span>Abrir en Google Maps</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Mapa Visual Google Maps Embebido y Clicable (6 columnas) -->
+            <div class="lg:col-span-6 bg-white dark:bg-zinc-900 rounded-3xl p-4 sm:p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-nintendo-red"></span>
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Google Maps • Uji, Kioto</span>
+                </div>
+                <span class="text-xs font-mono text-slate-400">34.8926° N, 135.7836° E</span>
+              </div>
+
+              <!-- Contenedor del Mapa Interactivo con enlace directo a Google Maps al hacer clic -->
+              <div class="relative w-full h-72 sm:h-80 lg:h-full min-h-[290px] rounded-2xl overflow-hidden border border-slate-200 dark:border-zinc-700 group">
+                <iframe
+                  title="Ubicación del Nintendo Museum en Google Maps"
+                  src="https://maps.google.com/maps?q=34.8926,135.7836+(Nintendo%20Museum)&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                  class="w-full h-full border-0 filter dark:contrast-95"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+
+                <!-- Overlay transparente clicable para abrir Google Maps directamente al hacer clic en cualquier zona del mapa -->
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Nintendo+Museum+56+Kaguraden+Oguracho+Uji+Kyoto"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Abrir ubicación exacta del Nintendo Museum en Google Maps"
+                  class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-end justify-center p-4"
+                >
+                  <span class="px-4 py-2.5 rounded-full bg-white/95 dark:bg-zinc-900/95 text-slate-900 dark:text-white font-extrabold text-xs sm:text-sm shadow-xl border border-slate-200 dark:border-zinc-700 flex items-center gap-2 group-hover:scale-105 transition-transform">
+                    <svg class="w-4 h-4 text-nintendo-red" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    <span>Haz clic para abrir el mapa interactivo en Google Maps</span>
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  </span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         PANTALLA 2: HISTORIA DEL MUSEO Y DE NINTENDO
+         ======================================================= -->
+    <section id="view-historia" class="spa-view hidden page-transition">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <!-- Encabezado de Sección -->
+        <div class="max-w-3xl mb-12">
+          <span class="inline-block px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/60 text-nintendo-red font-extrabold text-xs uppercase tracking-wider mb-3">
+            De fábrica de naipes a templo del entretenimiento
+          </span>
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight">Historia del Nintendo Museum</h1>
+          <p class="text-base sm:text-lg text-slate-600 dark:text-zinc-400 mt-4 leading-relaxed">
+            El Nintendo Museum no se construyó desde cero en un terreno vacío: nació de la voluntad de preservar la memoria física de la compañía transformando una de sus fábricas más emblemáticas en Uji, Kioto.
+          </p>
+        </div>
+
+        <!-- Cards de Contexto de Creación con Imágenes Reales -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+            <img
+              src="https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=800&q=80"
+              alt="Arquitectura industrial en Japón"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x420/334155/ffffff?text=Planta+Uji+Ogura';"
+              class="w-full h-44 object-cover"
+            />
+            <div class="p-6">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">1969 • Origen Industrial</span>
+              <h3 class="text-lg font-extrabold mt-1">¿Por qué en Uji Ogura?</h3>
+              <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                Inaugurada en <strong>1969</strong> como la Planta Uji (renombrada Uji Ogura en 1988), fue durante décadas el centro neurálgico donde se imprimían cartas Hanafuda y Karuta, y más tarde donde se realizaba el servicio técnico y reparación de consolas clásicas.
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hanafuda_cards.jpg/800px-Hanafuda_cards.jpg"
+              alt="Cartas tradicionales Hanafuda de Nintendo"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x420/b91c1c/ffffff?text=Filosofia+Dokuso';"
+              class="w-full h-44 object-cover"
+            />
+            <div class="p-6">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Diseño Experiencial</span>
+              <h3 class="text-lg font-extrabold mt-1">La Filosofía "Dokuso"</h3>
+              <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                Shigeru Miyamoto y el equipo creativo diseñaron el museo bajo el principio de <em>crear algo único y sorprendente</em>. Por eso, en lugar de paneles largos llenos de texto técnico, el museo apuesta por el impacto visual y el juego físico.
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+            <img
+              src="https://images.unsplash.com/photo-1551103782-8ab07afd45c1?auto=format&fit=crop&w=800&q=80"
+              alt="Consolas clásicas restauradas y conservadas"
+              onerror="this.onerror=null;this.src='https://placehold.co/800x420/0f766e/ffffff?text=Restauracion+2024';"
+              class="w-full h-44 object-cover"
+            />
+            <div class="p-6">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Preservación</span>
+              <h3 class="text-lg font-extrabold mt-1">Restauración Sostenible</h3>
+              <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                Cuando la producción y las reparaciones se trasladaron a otras instalaciones en 2016, Nintendo decidió conservar las estructuras industriales originales, reforzándolas y renovando sus jardines interiores para abrirlas al público en 2024.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Línea de Tiempo -->
+        <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-10 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-slate-100 dark:border-zinc-800">
+            <div>
+              <h2 class="text-2xl font-black">Cronología: 1889 – 2024</h2>
+              <p class="text-sm text-slate-500 dark:text-zinc-400 mt-1">Evolución histórica desde la fundación artesanal en Kioto hasta la apertura del museo en Uji.</p>
+            </div>
+            <div class="flex gap-2">
+              <span class="px-3 py-1 rounded-xl bg-slate-100 dark:bg-zinc-800 text-xs font-bold">6 Hitos Clave</span>
+            </div>
+          </div>
+
+          <div class="mt-8 relative space-y-6 before:content-[''] before:absolute before:left-5 sm:before:left-6 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-zinc-700">
+            
+            <!-- Hito 1 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-nintendo-red text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">1</div>
+              <div class="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70 hover:border-nintendo-red/40 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-nintendo-red bg-red-100 dark:bg-red-950/60 px-2.5 py-0.5 rounded-lg">23 de Septiembre, 1889</span>
+                  <span class="text-xs text-slate-400 font-semibold">Kioto, Japón</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">Fundación de Nintendo Koppai</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Fusajiro Yamauchi funda un pequeño taller artesanal en Kioto dedicado a la fabricación a mano de cartas tradicionales japonesas <strong>Hanafuda</strong> pintadas sobre corteza de morera.
+                </p>
+              </div>
+            </div>
+
+            <!-- Hito 2 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-nintendo-red text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">2</div>
+              <div class="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70 hover:border-nintendo-red/40 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-nintendo-red bg-red-100 dark:bg-red-950/60 px-2.5 py-0.5 rounded-lg">Década de 1960</span>
+                  <span class="text-xs text-slate-400 font-semibold">Era de los Juguetes</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">Expansión hacia juguetes e inventos mecánicos</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Bajo la presidencia de Hiroshi Yamauchi y el ingenio de Gunpei Yokoi, Nintendo crea éxitos como la <strong>Ultra Hand</strong> (1966), la máquina lanzapelotas <strong>Ultra Machine</strong> (1968) y el <strong>Love Tester</strong> (1969).
+                </p>
+              </div>
+            </div>
+
+            <!-- Hito 3 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">3</div>
+              <div class="p-5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-200/70 dark:bg-amber-900/50 px-2.5 py-0.5 rounded-lg">1969 — Nace el edificio actual</span>
+                  <span class="text-xs text-slate-400 font-semibold">Ogura-cho, Uji</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">Construcción de la Planta Uji Ogura</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Se construye la fábrica en Uji para aumentar la capacidad de producción de barajas de cartas y naipes. Este mismo complejo arquitectónico es el que hoy alberga las salas del Nintendo Museum.
+                </p>
+              </div>
+            </div>
+
+            <!-- Hito 4 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-nintendo-red text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">4</div>
+              <div class="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70 hover:border-nintendo-red/40 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-nintendo-red bg-red-100 dark:bg-red-950/60 px-2.5 py-0.5 rounded-lg">1983 – 2016</span>
+                  <span class="text-xs text-slate-400 font-semibold">Centro de Soporte</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">De Famicom a Centro de Atención y Reparaciones</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Con el auge de Famicom (NES) y Game Boy, la planta de Uji Ogura evolucionó para convertirse en el principal centro de servicio al cliente y reparación de hardware de Nintendo en Japón hasta noviembre de 2016.
+                </p>
+              </div>
+            </div>
+
+            <!-- Hito 5 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-nintendo-red text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">5</div>
+              <div class="p-5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70 hover:border-nintendo-red/40 transition-colors">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-nintendo-red bg-red-100 dark:bg-red-950/60 px-2.5 py-0.5 rounded-lg">Junio de 2021</span>
+                  <span class="text-xs text-slate-400 font-semibold">Anuncio Oficial</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">Anuncio del proyecto "Nintendo Gallery"</h3>
+                <p class="text-sm text-slate-600 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Nintendo anuncia oficialmente la transformación de la planta de Uji Ogura en una galería permanente para exhibir su archivo histórico de productos, bajo el nombre provisional de <em>Nintendo Gallery</em>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Hito 6 -->
+            <div class="relative pl-14 sm:pl-16">
+              <div class="absolute left-2 sm:left-3 top-1 w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center ring-4 ring-white dark:ring-zinc-900">6</div>
+              <div class="p-5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-200 dark:border-emerald-800/50">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-200/80 dark:bg-emerald-900/60 px-2.5 py-0.5 rounded-lg">2 de Octubre, 2024</span>
+                  <span class="text-xs text-emerald-700 dark:text-emerald-400 font-bold">Gran Inauguración</span>
+                </div>
+                <h3 class="text-lg font-extrabold mt-2">Apertura Oficial del Nintendo Museum</h3>
+                <p class="text-sm text-slate-700 dark:text-zinc-300 mt-1.5 leading-relaxed">
+                  Tras un Nintendo Direct especial presentado por Shigeru Miyamoto en agosto de 2024, el museo abre sus puertas al público mundial el 2 de octubre de 2024 con exhibiciones interactivas y talleres exclusivos.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         PANTALLA 3: QUÉ VER (CON SUBPÁGINAS INTERNAS CON TRANSICIÓN)
+         ======================================================= -->
+    <section id="view-que-ver" class="spa-view hidden page-transition">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        
+        <!-- Cabecera + Navegador de Subpáginas -->
+        <div class="mb-10">
+          <span class="text-nintendo-red font-extrabold text-xs uppercase tracking-widest">Recorrido Completo por Zonas</span>
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight mt-1">Qué ver en el Nintendo Museum</h1>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-zinc-400 mt-3 max-w-3xl">
+            Selecciona una de las cuatro áreas temáticas del complejo para explorar sus exhibiciones, mecánicas de juego, talleres y espacios gastronómicos.
+          </p>
+
+          <!-- Pestañas / Subpáginas con transición -->
+          <div class="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-3" role="tablist" aria-label="Zonas del museo">
+            <button onclick="switchSubpage('galeria')" data-subtab="galeria" class="subtab-btn p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10">2ª Planta</span>
+              </div>
+              <div class="mt-3">
+                <p class="font-extrabold text-sm sm:text-base">Galería Histórica</p>
+                <p class="text-xs opacity-75 mt-0.5">Consolas, juguetes y sagas</p>
+              </div>
+            </button>
+
+            <button onclick="switchSubpage('interactivo')" data-subtab="interactivo" class="subtab-btn p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10">1ª Planta</span>
+              </div>
+              <div class="mt-3">
+                <p class="font-extrabold text-sm sm:text-base">Zona Interactiva</p>
+                <p class="text-xs opacity-75 mt-0.5">8 juegos con tus monedas</p>
+              </div>
+            </button>
+
+            <button onclick="switchSubpage('talleres')" data-subtab="talleres" class="subtab-btn p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10">Craft & Play</span>
+              </div>
+              <div class="mt-3">
+                <p class="font-extrabold text-sm sm:text-base">Talleres Hanafuda</p>
+                <p class="text-xs opacity-75 mt-0.5">Crea y juega cartas</p>
+              </div>
+            </button>
+
+            <button onclick="switchSubpage('tienda-cafe')" data-subtab="tienda-cafe" class="subtab-btn p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span class="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-black/5 dark:bg-white/10">Comer y Comprar</span>
+              </div>
+              <div class="mt-3">
+                <p class="font-extrabold text-sm sm:text-base">Hatena Burger y Tienda</p>
+                <p class="text-xs opacity-75 mt-0.5">Gastronomía y Bonus Stage</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR DE SUBPÁGINAS -->
+        <div id="subpageContainer">
+
+          <!-- SUBPÁGINA A: GALERÍA HISTÓRICA (2ª PLANTA) -->
+          <div id="subpage-galeria" class="subpage-view subpage-transition space-y-8">
+            <div class="bg-gradient-to-r from-slate-900 to-zinc-800 dark:from-zinc-900 dark:to-zinc-800 text-white rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div class="space-y-2 max-w-2xl">
+                <span class="px-3 py-1 rounded-full bg-nintendo-red text-xs font-extrabold uppercase tracking-wider">2ª Planta • Exhibición Principal</span>
+                <h2 class="text-2xl sm:text-3xl font-black">El Archivo Vivo de Nintendo</h2>
+                <p class="text-sm sm:text-base text-slate-300">
+                  Al subir por la escalera mecánica te recibe un techo iluminado con mandos gigantes suspendidos y vitrinas organizadas por generaciones de consolas (Famicom, NES, SNES, N64, GameCube, Wii, DS, 3DS, Switch) junto con sus versiones americanas y europeas.
+                </p>
+              </div>
+              <div class="bg-white/10 border border-white/15 rounded-2xl p-4 text-xs sm:text-sm shrink-0">
+                <p class="font-bold text-amber-300">Normativa de sala:</p>
+                <p class="text-slate-200 mt-1 max-w-xs">En la 2ª Planta <strong>no está permitido tomar fotografías ni vídeos</strong> para preservar la experiencia inmersiva y derechos de exhibición.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/NES-Console-Set.jpg/800px-NES-Console-Set.jpg"
+                  alt="Consola Nintendo Entertainment System (NES) original"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/334155/ffffff?text=Consolas+Clasicas';"
+                  class="w-full h-48 object-cover bg-slate-100 dark:bg-zinc-800"
+                />
+                <div class="p-6">
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Hardware Histórico</span>
+                  <h3 class="text-lg font-extrabold mt-1">Islas de Consolas por Generación</h3>
+                  <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                    Cada consola cuenta con su propia isla expositiva que incluye el hardware original japonés, las variantes occidentales (NES y Super NES), periféricos raros (R.O.B., Power Glove, Virtual Boy, 64DD) y pantallas reproduciendo sus títulos icónicos.
+                  </p>
+                </div>
+              </div>
+
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Game-Boy-FL.jpg/800px-Game-Boy-FL.jpg"
+                  alt="Consola portátil Nintendo Game Boy original"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/475569/ffffff?text=Portatiles+y+Juguetes';"
+                  class="w-full h-48 object-cover bg-slate-100 dark:bg-zinc-800"
+                />
+                <div class="p-6">
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Ingeniería y Portátiles</span>
+                  <h3 class="text-lg font-extrabold mt-1">De Game & Watch a Game Boy</h3>
+                  <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                    Vitrinas dedicadas a la época dorada de los juguetes mecánicos (Ultra Hand, Copilas, N&B Block, Kousenju SP) y toda la evolución portátil desde los modelos Game & Watch hasta Game Boy, Nintendo DS y Nintendo Switch.
+                  </p>
+                </div>
+              </div>
+
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Nintendo-64-wController-L.jpg/800px-Nintendo-64-wController-L.jpg"
+                  alt="Consola Nintendo 64 y su mando analógico"
+                  onerror="this.onerror=null;this.src='https://placehold.co/800x450/1e293b/ffffff?text=Evolucion+3D';"
+                  class="w-full h-48 object-cover bg-slate-100 dark:bg-zinc-800"
+                />
+                <div class="p-6">
+                  <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Diseño de Jugabilidad</span>
+                  <h3 class="text-lg font-extrabold mt-1">Evolución de Sagas y Mecánicas</h3>
+                  <p class="text-sm text-slate-600 dark:text-zinc-400 mt-2 leading-relaxed">
+                    Paneles interactivos comparativos que muestran cómo evolucionaron el salto de Mario, los mundos abiertos de The Legend of Zelda, el salto al 3D en Nintendo 64 y las interfaces de control desde los 8 bits hasta la actualidad.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBPÁGINA B: EXPERIENCIAS INTERACTIVAS (1ª PLANTA) -->
+          <div id="subpage-interactivo" class="subpage-view hidden subpage-transition space-y-8">
+            <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider">Sistema de 10 Monedas Digitales</span>
+                <h2 class="text-2xl sm:text-3xl font-black mt-2">1ª Planta: Juega a Escala Gigante</h2>
+                <p class="text-sm sm:text-base text-slate-700 dark:text-zinc-300 mt-2 max-w-2xl">
+                  Tu pase de entrada incluye <strong>10 monedas digitales</strong> cargadas en su chip NFC. Cada atracción consume entre 1 y 4 monedas, por lo que deberás elegir estratégicamente tus favoritas (no es posible recargar monedas extra).
+                </p>
+              </div>
+              <div class="bg-white dark:bg-zinc-900 rounded-2xl p-4 border border-amber-200 dark:border-zinc-700 shadow-sm shrink-0">
+                <p class="text-xs font-bold uppercase text-slate-400">Estrategia recomendada</p>
+                <p class="text-sm font-extrabold mt-1">Combinación óptima: 2 + 2 + 2 + 2 + 1 + 1 = 10 Coins</p>
+              </div>
+            </div>
+
+            <!-- Grid de las 8 experiencias con Imágenes Reales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <!-- 1 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/NES-Zapper.jpg/640px-NES-Zapper.jpg"
+                      alt="Pistola óptica NES Zapper"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/dc2626/ffffff?text=Zapper+%26+Scope';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">4 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Zapper & Scope SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Galería de tiro gigante para hasta 13 jugadores simultáneos usando réplicas de la pistola NES Zapper y el bazooka Super Scope contra enemigos de Mario.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/NES-Controller.jpg/640px-NES-Controller.jpg"
+                      alt="Mando clásico de Nintendo NES"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/2563eb/ffffff?text=Big+Controller';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">2 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Big Controller</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Juega en pareja cooperando sobre mandos colosales de Famicom, Super Famicom, Nintendo 64 o Wii Balance Board: uno mueve la cruceta y otro pulsa los botones.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://images.unsplash.com/photo-1511882150382-421056c89033?auto=format&fit=crop&w=640&q=80"
+                      alt="Sala arcade y recreativa luminosa"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/059669/ffffff?text=Ultra+Machine+SP';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">2 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Ultra Machine SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Una sala recreada como un salón japonés de los años 70 donde debes batear pelotas lanzadas por la Ultra Machine y golpear objetos del mobiliario para sumar puntos.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hanafuda_cards.jpg/640px-Hanafuda_cards.jpg"
+                      alt="Cartas japonesas tradicionales para Shigureden SP"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/7c3aed/ffffff?text=Shigureden+SP';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">2 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Shigureden SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Suelo interactivo gigante de alta resolución donde compites buscando cartas de poesía tradicional japonesa (Hyakunin Isshu) guiándote con un dispositivo inteligente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=640&q=80"
+                      alt="Instalación interactiva de luces y sensores"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/e11d48/ffffff?text=Love+Tester+SP';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">2 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Love Tester SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Reinvención cooperativa del clásico medidor de afinidad de 1969: dos personas se toman de la mano y superan minijuegos sincronizados para medir su nivel de afinidad.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://images.unsplash.com/photo-1585504198199-20277593b94f?auto=format&fit=crop&w=640&q=80"
+                      alt="Mecanismo clásico y colores primarios"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/ea580c/ffffff?text=Ultra+Hand+SP';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">2 Coins</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Ultra Hand SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Usa el famoso brazo extensible diseñado por Gunpei Yokoi para atrapar bolas de colores que ruedan por carriles y depositarlas en tuberías antes de que se agote el tiempo.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 7 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Game_%26_Watch_Ball.jpg/640px-Game_%26_Watch_Ball.jpg"
+                      alt="Consola portátil Game & Watch Ball"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/0284c7/ffffff?text=Game+%26+Watch+SP';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">1 Coin</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Game & Watch SP</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Controla los clásicos LCD <em>Ball</em> y <em>Manhole</em> usando únicamente la sombra de tu propio cuerpo proyectada sobre una pantalla gigante.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 8 -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="relative h-36 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/SNES-Mod1-Console-Set.jpg/640px-SNES-Mod1-Console-Set.jpg"
+                      alt="Consola Super Nintendo Entertainment System"
+                      onerror="this.onerror=null;this.src='https://placehold.co/640x360/4f46e5/ffffff?text=Nintendo+Classics';"
+                      class="w-full h-full object-cover"
+                    />
+                    <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black shadow">1 Coin</span>
+                  </div>
+                  <div class="p-5">
+                    <h3 class="font-extrabold text-base">Nintendo Classics</h3>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                      Puestos retro individuales donde puedes disfrutar durante 7 minutos de más de 80 clásicos originales de NES, Super NES y Nintendo 64.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBPÁGINA C: TALLERES CREATIVOS -->
+          <div id="subpage-talleres" class="subpage-view hidden subpage-transition space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Taller 1: Crea tus Hanafuda -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <img
+                    src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=80"
+                    alt="Taller artesanal de pintura y estampado tradicional"
+                    onerror="this.onerror=null;this.src='https://placehold.co/900x450/059669/ffffff?text=Taller+Hanafuda';"
+                    class="w-full h-52 object-cover"
+                  />
+                  <div class="p-7">
+                    <div class="flex items-center justify-between mb-4">
+                      <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">Reserva el mismo día</span>
+                      <span class="text-sm font-black text-slate-700 dark:text-zinc-300">2.000 ¥ • 60 min</span>
+                    </div>
+                    <h3 class="text-2xl font-black">Taller: Fabrica tus Cartas Hanafuda</h3>
+                    <p class="text-sm text-slate-600 dark:text-zinc-400 mt-3 leading-relaxed">
+                      Experimenta el oficio artesanal con el que nació Nintendo en 1889. En este taller podrás estampar colores con plantillas tradicionales, doblar los bordes de papel y montar 4 cartas reales correspondientes a un mes del año que te llevarás como recuerdo en un estuche especial.
+                    </p>
+                    <ul class="mt-4 space-y-2 text-xs sm:text-sm text-slate-600 dark:text-zinc-300">
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Incluye materiales, pinturas y caja de presentación</li>
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Guías paso a paso en pantalla disponibles en inglés y japonés</li>
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Se reserva en el mostrador del Edificio de Talleres al entrar al museo</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Taller 2: Aprende a jugar Hanafuda -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
+                <div>
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Hanafuda_cards.jpg/900px-Hanafuda_cards.jpg"
+                    alt="Cartas Hanafuda dispuestas sobre mesa de juego"
+                    onerror="this.onerror=null;this.src='https://placehold.co/900x450/0284c7/ffffff?text=Sala+Koi-Koi';"
+                    class="w-full h-52 object-cover"
+                  />
+                  <div class="p-7">
+                    <div class="flex items-center justify-between mb-4">
+                      <span class="px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-xs font-extrabold">Para parejas o grupos</span>
+                      <span class="text-sm font-black text-slate-700 dark:text-zinc-300">500 ¥ • 30 min</span>
+                    </div>
+                    <h3 class="text-2xl font-black">Sala de Juego: Aprende Koi-Koi</h3>
+                    <p class="text-sm text-slate-600 dark:text-zinc-400 mt-3 leading-relaxed">
+                      ¿No sabes cómo se juega a las cartas Hanafuda? Estas mesas especiales incorporan proyección inteligente sobre el tapete que reconoce las cartas reales que colocas, iluminando las combinaciones posibles y explicando las reglas del modo <em>Hana-Awase</em> paso a paso.
+                    </p>
+                    <ul class="mt-4 space-y-2 text-xs sm:text-sm text-slate-600 dark:text-zinc-300">
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Ideal para principiantes sin conocimientos previos</li>
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Interfaz visual intuitiva que guía cada turno</li>
+                      <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-nintendo-red"></span> Disponible para 2 jugadores por mesa</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBPÁGINA D: GASTRONOMÍA Y TIENDA -->
+          <div id="subpage-tienda-cafe" class="subpage-view hidden subpage-transition space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Hatena Burger -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-5">
+                <img
+                  src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=900&q=80"
+                  alt="Hamburguesa artesanal servida en Hatena Burger"
+                  onerror="this.onerror=null;this.src='https://placehold.co/900x450/d97706/ffffff?text=Hatena+Burger';"
+                  class="w-full h-52 object-cover"
+                />
+                <div class="p-7 pt-2 space-y-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-400 text-slate-900 font-black text-2xl flex items-center justify-center shadow-sm">?</div>
+                    <div>
+                      <span class="text-xs font-extrabold uppercase tracking-wider text-orange-600 dark:text-orange-400">Cafetería Oficial</span>
+                      <h3 class="text-2xl font-black">Hatena Burger</h3>
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                    Inspirada en los icónicos bloques interrogación de Super Mario, esta cafetería permite pedir mediante tu smartphone combinando panecillos, carnes (incluida carne Wagyu de Kioto o opciones vegetales), salsas y guarniciones para crear <strong>más de 270.000 recetas diferentes</strong>.
+                  </p>
+                  <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800">
+                      <p class="font-extrabold text-slate-900 dark:text-white">Hamburguesa Custom</p>
+                      <p class="text-slate-500 dark:text-zinc-400 mt-1">Desde 1.300 ¥ con ingredientes locales de Uji.</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800">
+                      <p class="font-extrabold text-slate-900 dark:text-white">Bebidas Especiales</p>
+                      <p class="text-slate-500 dark:text-zinc-400 mt-1">Té verde Matcha de Uji y refrescos flotantes.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tienda Bonus Stage -->
+              <div class="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-5">
+                <img
+                  src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=900&q=80"
+                  alt="Tienda oficial de recuerdos y artículos exclusivos Bonus Stage"
+                  onerror="this.onerror=null;this.src='https://placehold.co/900x450/e60012/ffffff?text=Bonus+Stage';"
+                  class="w-full h-52 object-cover"
+                />
+                <div class="p-7 pt-2 space-y-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-nintendo-red text-white font-black text-base flex items-center justify-center shadow-sm">SHOP</div>
+                    <div>
+                      <span class="text-xs font-extrabold uppercase tracking-wider text-nintendo-red">Merchandising Exclusivo</span>
+                      <h3 class="text-2xl font-black">Tienda Bonus Stage</h3>
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed">
+                    El acceso a esta tienda está restringido exclusivamente a visitantes con entrada al museo. Sus estanterías están ordenadas cronológicamente por consolas, ofreciendo artículos coleccionables que no se venden en las tiendas Nintendo Tokyo, Osaka o Kyoto.
+                  </p>
+                  <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800">
+                      <p class="font-extrabold text-slate-900 dark:text-white">Cojines Mando Gigante</p>
+                      <p class="text-slate-500 dark:text-zinc-400 mt-1">Famicom, Super Famicom, N64 y Wii (11.000 ¥ aprox.).</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800">
+                      <p class="font-extrabold text-slate-900 dark:text-white">Colección Hardware</p>
+                      <p class="text-slate-500 dark:text-zinc-400 mt-1">Llaveros en miniatura, camisetas y libretas retro.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         PANTALLA 4: COMPRA DE ENTRADAS (PORTAL REALISTA)
+         ======================================================= -->
+    <section id="view-entradas" class="spa-view hidden page-transition">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        
+        <div class="max-w-3xl mb-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 dark:bg-red-950/60 text-nintendo-red text-xs font-extrabold uppercase tracking-wider mb-3">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+            <span>Portal Oficial de Reserva y Emisión de Pases</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight">Reserva tus Entradas</h1>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-zinc-400 mt-3 leading-relaxed">
+            Selecciona la fecha de tu visita a Uji (Kioto), elige tu franja horaria de entrada y completa los datos del titular para emitir tu <strong>Nintendo Museum Play Pass</strong> con 10 monedas digitales incluidas por visitante.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Formulario de Reserva (7 columnas) -->
+          <form id="ticketForm" onsubmit="handleTicketSubmit(event)" class="lg:col-span-7 bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-slate-200/80 dark:border-zinc-800 shadow-sm space-y-6">
+            
+            <!-- Datos del titular -->
+            <div>
+              <h2 class="text-lg font-extrabold flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-nintendo-red text-white text-xs flex items-center justify-center font-black">1</span>
+                <span>Datos del Visitante Titular</span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label for="visitorName" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">
+                    Nombre y Apellidos *
+                  </label>
+                  <input type="text" id="visitorName" required placeholder="Ej. Alejandro García" class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-nintendo-red transition-all" />
+                </div>
+                <div>
+                  <label for="visitorEmail" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">
+                    Correo Electrónico *
+                  </label>
+                  <input type="email" id="visitorEmail" required placeholder="nombre@correo.com" class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-nintendo-red transition-all" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Fecha y Turno Horario -->
+            <div class="pt-4 border-t border-slate-100 dark:border-zinc-800">
+              <h2 class="text-lg font-extrabold flex items-center gap-2.5">
+                <span class="w-6 h-6 rounded-full bg-nintendo-red text-white text-xs flex items-center justify-center font-black">2</span>
+                <span>Fecha y Franja Horaria de Entrada</span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label for="visitDate" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">
+                    Fecha de Visita *
+                  </label>
+                  <input type="date" id="visitDate" required class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-nintendo-red transition-all" />
+                  <p id="tuesdayWarning" class="hidden text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1.5">
+                    Aviso de calendario: El museo permanece cerrado habitualmente los martes.
+                  </p>
+                </div>
+
+                <div>
+                  <label for="visitSlot" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">
+                    Turno de Acceso *
+                  </label>
+                  <select id="visitSlot" class="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-nintendo-red transition-all">
+                    <option value="10:00 - 10:30 (Primer Turno)">10:00 – 10:30 (Primer Turno)</option>
+                    <option value="11:00 - 11:30 (Mañana)">11:00 – 11:30 (Mañana)</option>
+                    <option value="12:00 - 12:30 (Mediodía)">12:00 – 12:30 (Mediodía)</option>
+                    <option value="13:00 - 13:30 (Tarde I)">13:00 – 13:30 (Tarde I)</option>
+                    <option value="14:00 - 14:30 (Tarde II)">14:00 – 14:30 (Tarde II)</option>
+                    <option value="15:00 - 15:30 (Último Acceso)">15:00 – 15:30 (Último Acceso)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selección de Entradas y Tarifas Oficiales -->
+            <div class="pt-4 border-t border-slate-100 dark:border-zinc-800">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold flex items-center gap-2.5">
+                  <span class="w-6 h-6 rounded-full bg-nintendo-red text-white text-xs flex items-center justify-center font-black">3</span>
+                  <span>Cantidad de Entradas</span>
+                </h2>
+                <span class="text-xs font-semibold text-slate-400">Máximo 8 entradas por reserva</span>
+              </div>
+
+              <div class="space-y-3">
+                <!-- Adultos -->
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70">
+                  <div>
+                    <p class="font-extrabold text-sm">Adultos (18+ años)</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400">3.300 ¥ (~20,50 €) • Incluye 10 monedas digitales</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button type="button" onclick="updateQty('adult', -1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">−</button>
+                    <span id="qty-adult" class="w-6 text-center font-extrabold text-base">1</span>
+                    <button type="button" onclick="updateQty('adult', 1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">+</button>
+                  </div>
+                </div>
+
+                <!-- Jóvenes -->
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70">
+                  <div>
+                    <p class="font-extrabold text-sm">Jóvenes (12 – 17 años)</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400">2.200 ¥ (~13,60 €) • Incluye 10 monedas digitales</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button type="button" onclick="updateQty('youth', -1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">−</button>
+                    <span id="qty-youth" class="w-6 text-center font-extrabold text-base">0</span>
+                    <button type="button" onclick="updateQty('youth', 1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">+</button>
+                  </div>
+                </div>
+
+                <!-- Niños -->
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70">
+                  <div>
+                    <p class="font-extrabold text-sm">Niños (6 – 11 años)</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400">1.100 ¥ (~6,80 €) • Incluye 10 monedas digitales</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button type="button" onclick="updateQty('child', -1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">−</button>
+                    <span id="qty-child" class="w-6 text-center font-extrabold text-base">0</span>
+                    <button type="button" onclick="updateQty('child', 1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">+</button>
+                  </div>
+                </div>
+
+                <!-- Preescolares -->
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-zinc-800/70 border border-slate-200/70 dark:border-zinc-700/70">
+                  <div>
+                    <p class="font-extrabold text-sm">Menores de 6 años</p>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400">Gratis (0 ¥) • Acompañados de un adulto</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button type="button" onclick="updateQty('infant', -1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">−</button>
+                    <span id="qty-infant" class="w-6 text-center font-extrabold text-base">0</span>
+                    <button type="button" onclick="updateQty('infant', 1)" class="w-9 h-9 rounded-xl bg-white dark:bg-zinc-700 border border-slate-200 dark:border-zinc-600 font-black text-lg hover:bg-slate-100 active:scale-95 transition-all">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen Económico y Botón Confirmar -->
+            <div class="pt-5 border-t border-slate-100 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p class="text-xs font-bold uppercase text-slate-400">Importe Total (Impuestos incluidos)</p>
+                <div class="flex items-baseline gap-2">
+                  <span id="totalYen" class="text-2xl sm:text-3xl font-black text-nintendo-red">3.300 ¥</span>
+                  <span id="totalEur" class="text-xs font-semibold text-slate-500 dark:text-zinc-400">(~20,50 € aprox.)</span>
+                </div>
+              </div>
+
+              <button type="submit" class="px-7 py-4 rounded-2xl bg-nintendo-red hover:bg-nintendo-darkRed text-white font-extrabold text-sm sm:text-base shadow-lg shadow-red-600/25 hover:-translate-y-0.5 active:scale-98 transition-all">
+                Confirmar Reserva y Emitir Pase
+              </button>
+            </div>
+          </form>
+
+          <!-- Vista Previa / Pase Digital Generado (5 columnas) -->
+          <div class="lg:col-span-5 space-y-5">
+            <div class="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Pase Digital de Acceso</span>
+                <span id="ticketStatusBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300">
+                  Pendiente de emisión
+                </span>
+              </div>
+
+              <!-- Tarjeta Estilo Nintendo Museum Play Pass -->
+              <div id="digitalTicketCard" class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-nintendo-red via-red-600 to-rose-800 text-white p-6 shadow-xl">
+                <div class="ticket-shimmer absolute inset-0 pointer-events-none"></div>
+                
+                <div class="relative z-10 flex items-center justify-between border-b border-white/25 pb-4">
+                  <div>
+                    <span class="px-2.5 py-0.5 rounded-full bg-white text-nintendo-red font-black text-xs">Nintendo</span>
+                    <h3 class="font-black text-lg tracking-tight mt-1">MUSEUM PLAY PASS</h3>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] uppercase tracking-widest text-red-100 block">Saldo por visitante</span>
+                    <span class="text-xl font-black text-amber-300">10 COINS</span>
+                  </div>
+                </div>
+
+                <div class="relative z-10 py-4 space-y-3 text-sm">
+                  <div>
+                    <p class="text-[11px] uppercase tracking-wider text-red-200">Titular de la Reserva</p>
+                    <p id="previewName" class="font-extrabold text-lg truncate">Nombre del Titular</p>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider text-red-200">Fecha de Visita</p>
+                      <p id="previewDate" class="font-bold">Selecciona fecha</p>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider text-red-200">Franja Horaria</p>
+                      <p id="previewSlot" class="font-bold truncate">10:00 – 10:30</p>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider text-red-200">Visitantes</p>
+                      <p id="previewGuests" class="font-bold">1 Adulto</p>
+                    </div>
+                    <div>
+                      <p class="text-[11px] uppercase tracking-wider text-red-200">Número de Reserva</p>
+                      <p id="previewCode" class="font-mono font-bold text-amber-300">UJI-0000-00</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Código QR Oficial + Barra inferior -->
+                <div class="relative z-10 pt-4 border-t border-dashed border-white/35 flex items-center justify-between gap-4">
+                  <div class="text-[11px] text-red-100 leading-snug">
+                    <p class="font-bold text-white">Acceso NFC + Código QR</p>
+                    <p>Presenta este pase junto con tu documento de identidad en la puerta de Uji Ogura.</p>
+                  </div>
+                  <!-- QR SVG -->
+                  <div class="bg-white p-2 rounded-xl shrink-0">
+                    <svg class="w-12 h-12 text-slate-900" viewBox="0 0 36 36" fill="currentColor" aria-hidden="true">
+                      <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 0h2v2h-2V4zm-4 6h4v2h-4v-2zm-2 4h2v4h-2v-4zm4 2h4v2h-4v-2zm6 0h2v4h-2v-4zm4 0h4v2h-4v-2zm-12 4h2v4h-2v-4zm4 2h4v2h-4v-2zm6 2h2v4h-2v-4zm4 0h4v4h-4v-4zm-8 4h4v2h-4v-2zm-6 2h2v4h-2v-4zm12 2h4v2h-4v-2z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mensaje de confirmación oficial tras enviar -->
+              <div id="confirmationBanner" class="hidden mt-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs sm:text-sm space-y-3">
+                <div>
+                  <p class="font-extrabold">Reserva confirmada y pase emitido</p>
+                  <p class="mt-1">Hemos registrado tu entrada para el Nintendo Museum en Uji, Kioto. Conserva el código QR para el control de acceso.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <button type="button" onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-colors">
+                    Imprimir / Guardar PDF
+                  </button>
+                  <button type="button" onclick="resetReservationForm()" class="px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-800 border border-emerald-300 dark:border-zinc-700 text-emerald-900 dark:text-zinc-200 text-xs font-bold transition-colors">
+                    Nueva reserva
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================
+         PANTALLA 5: DUDAS FRECUENTES (FAQ)
+         ======================================================= -->
+    <section id="view-faq" class="spa-view hidden page-transition">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        
+        <div class="text-center max-w-2xl mx-auto mb-10">
+          <span class="text-nintendo-red font-extrabold text-xs uppercase tracking-widest">Centro de Ayuda al Visitante</span>
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight mt-1">Dudas Frecuentes (FAQ)</h1>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-zinc-400 mt-3">
+            Resolvemos las preguntas más habituales sobre la reserva de entradas, el uso de monedas digitales, normativas internas y servicios del museo.
+          </p>
+
+          <!-- Buscador rápido en tiempo real -->
+          <div class="mt-6 relative">
+            <input type="text" id="faqSearch" oninput="filterFaqs()" placeholder="Buscar duda (ej. sorteo, fotos, monedas, maletas, niños...)" class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-nintendo-red transition-all" />
+            <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Filtros por Categoría -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8">
+          <button onclick="setFaqCategory('all')" data-faqcat="all" class="faq-cat-btn px-4 py-2 rounded-xl text-xs font-extrabold transition-all">Todas las consultas</button>
+          <button onclick="setFaqCategory('entradas')" data-faqcat="entradas" class="faq-cat-btn px-4 py-2 rounded-xl text-xs font-extrabold transition-all">Entradas y Acceso</button>
+          <button onclick="setFaqCategory('experiencia')" data-faqcat="experiencia" class="faq-cat-btn px-4 py-2 rounded-xl text-xs font-extrabold transition-all">Monedas y Juegos</button>
+          <button onclick="setFaqCategory('normas')" data-faqcat="normas" class="faq-cat-btn px-4 py-2 rounded-xl text-xs font-extrabold transition-all">Normas y Servicios</button>
+        </div>
+
+        <!-- Lista Acordeón de Preguntas -->
+        <div id="faqList" class="space-y-3.5">
+          <!-- Se renderiza dinámicamente mediante JS -->
+        </div>
+
+        <!-- Mensaje sin resultados -->
+        <div id="faqEmpty" class="hidden text-center py-12 bg-white dark:bg-zinc-900 rounded-3xl border border-slate-200 dark:border-zinc-800">
+          <p class="font-bold text-base">No encontramos preguntas con ese término.</p>
+          <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">Prueba con palabras como "sorteo", "fotos", "monedas" o "horario".</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================
+       TOAST / NOTIFICACIÓN FLOTANTE (SIN EMOJIS NI ALERT)
+       ========================================================= -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-bold border border-slate-700 dark:border-slate-200">
+      <span class="w-2.5 h-2.5 rounded-full bg-nintendo-red shrink-0"></span>
+      <span id="toastMessage">Mensaje</span>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PIE DE PÁGINA (FOOTER)
+       ========================================================= -->
+  <footer class="bg-white dark:bg-zinc-900 border-t border-slate-200/80 dark:border-zinc-800 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-zinc-400">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="px-2.5 py-0.5 rounded-full bg-nintendo-red text-white font-black text-xs">Nintendo</span>
+        <span class="font-bold text-slate-700 dark:text-zinc-300">Guía Interactiva del Nintendo Museum • Uji, Kioto</span>
+        <a
+          href="https://www.google.com/maps/search/?api=1&query=Nintendo+Museum+56+Kaguraden+Oguracho+Uji+Kyoto"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-nintendo-red font-bold hover:underline"
+        >
+          Ver en Google Maps
+        </a>
+      </div>
+      <p class="text-center sm:text-right">
+        Guía cultural y turística del Nintendo Museum. Nintendo y las marcas mencionadas son propiedad de Nintendo Co., Ltd.
+      </p>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       LÓGICA JAVASCRIPT (NAVEGACIÓN SPA, TEMA, TICKETS Y FAQ)
+       ========================================================= -->
+  <script>
+    // ---------------------------------------------------------
+    // 1. GESTIÓN DE MODO CLARO / OSCURO
+    // ---------------------------------------------------------
+    function initTheme() {
+      const savedTheme = localStorage.getItem('nintendo-museum-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateThemeLabel();
+    }
+
+    function toggleTheme() {
+      const htmlEl = document.documentElement;
+      htmlEl.classList.toggle('dark');
+      const isDark = htmlEl.classList.contains('dark');
+      localStorage.setItem('nintendo-museum-theme', isDark ? 'dark' : 'light');
+      updateThemeLabel();
+      showToast(isDark ? 'Modo Oscuro activado' : 'Modo Claro activado');
+    }
+
+    function updateThemeLabel() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const label = document.getElementById('themeLabel');
+      if (label) {
+        label.textContent = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 2. NAVEGACIÓN SPA Y TRANSICIONES DE PANTALLA
+    // ---------------------------------------------------------
+    let currentView = 'inicio';
+
+    function navigateTo(viewId, subpageId = null) {
+      const views = document.querySelectorAll('.spa-view');
+      const targetView = document.getElementById(`view-${viewId}`);
+      if (!targetView) return;
+
+      views.forEach(view => {
+        view.classList.add('hidden');
+        view.classList.remove('page-transition');
+      });
+
+      void targetView.offsetWidth;
+      targetView.classList.remove('hidden');
+      targetView.classList.add('page-transition');
+      currentView = viewId;
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const isActive = btn.dataset.nav === viewId;
+        if (isActive) {
+          btn.classList.add('bg-nintendo-red', 'text-white', 'shadow-sm');
+          btn.classList.remove('text-slate-600', 'dark:text-zinc-300', 'hover:text-slate-900', 'dark:hover:text-white');
+        } else {
+          btn.classList.remove('bg-nintendo-red', 'text-white', 'shadow-sm');
+          btn.classList.add('text-slate-600', 'dark:text-zinc-300', 'hover:text-slate-900', 'dark:hover:text-white');
+        }
+      });
+
+      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        const isActive = btn.dataset.nav === viewId;
+        if (isActive) {
+          btn.classList.add('bg-red-50', 'dark:bg-red-950/50', 'text-nintendo-red');
+        } else {
+          btn.classList.remove('bg-red-50', 'dark:bg-red-950/50', 'text-nintendo-red');
+        }
+      });
+
+      if (viewId === 'que-ver' && subpageId) {
+        switchSubpage(subpageId);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu(forceState = null) {
+      const menu = document.getElementById('mobileMenu');
+      const openIcon = document.getElementById('menuOpenIcon');
+      const closeIcon = document.getElementById('menuCloseIcon');
+      const shouldOpen = forceState !== null ? forceState : menu.classList.contains('hidden');
+
+      if (shouldOpen) {
+        menu.classList.remove('hidden');
+        openIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+      } else {
+        menu.classList.add('hidden');
+        openIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 3. SUBPÁGINAS DE "QUÉ VER" CON TRANSICIONES
+    // ---------------------------------------------------------
+    function switchSubpage(subId) {
+      const subpages = document.querySelectorAll('.subpage-view');
+      const target = document.getElementById(`subpage-${subId}`);
+      if (!target) return;
+
+      subpages.forEach(sp => {
+        sp.classList.add('hidden');
+        sp.classList.remove('subpage-transition');
+      });
+
+      void target.offsetWidth;
+      target.classList.remove('hidden');
+      target.classList.add('subpage-transition');
+
+      document.querySelectorAll('.subtab-btn').forEach(btn => {
+        const active = btn.dataset.subtab === subId;
+        if (active) {
+          btn.classList.add('bg-nintendo-red', 'text-white', 'border-nintendo-red', 'shadow-lg', 'shadow-red-600/20');
+          btn.classList.remove('bg-white', 'dark:bg-zinc-900', 'border-slate-200/80', 'dark:border-zinc-800', 'hover:border-nintendo-red/50');
+        } else {
+          btn.classList.remove('bg-nintendo-red', 'text-white', 'border-nintendo-red', 'shadow-lg', 'shadow-red-600/20');
+          btn.classList.add('bg-white', 'dark:bg-zinc-900', 'border-slate-200/80', 'dark:border-zinc-800', 'hover:border-nintendo-red/50');
+        }
+      });
+    }
+
+    // ---------------------------------------------------------
+    // 4. RESERVA DE ENTRADAS Y PASE DIGITAL
+    // ---------------------------------------------------------
+    const ticketState = {
+      adult: 1,
+      youth: 0,
+      child: 0,
+      infant: 0
+    };
+
+    const ticketPrices = {
+      adult: 3300,
+      youth: 2200,
+      child: 1100,
+      infant: 0
+    };
+
+    function initTickets() {
+      const dateInput = document.getElementById('visitDate');
+      const nameInput = document.getElementById('visitorName');
+      const slotSelect = document.getElementById('visitSlot');
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const isoTomorrow = tomorrow.toISOString().split('T')[0];
+      dateInput.min = isoTomorrow;
+      dateInput.value = isoTomorrow;
+
+      nameInput.addEventListener('input', updateTicketPreview);
+      dateInput.addEventListener('change', () => {
+        checkTuesdayWarning();
+        updateTicketPreview();
+      });
+      slotSelect.addEventListener('change', updateTicketPreview);
+
+      checkTuesdayWarning();
+      updateTicketPreview();
+    }
+
+    function checkTuesdayWarning() {
+      const dateVal = document.getElementById('visitDate').value;
+      const warning = document.getElementById('tuesdayWarning');
+      if (!dateVal) return;
+      const selected = new Date(dateVal + 'T12:00:00');
+      if (selected.getDay() === 2) {
+        warning.classList.remove('hidden');
+      } else {
+        warning.classList.add('hidden');
+      }
+    }
+
+    function updateQty(type, delta) {
+      const totalCurrent = ticketState.adult + ticketState.youth + ticketState.child + ticketState.infant;
+      const newVal = ticketState[type] + delta;
+
+      if (newVal < 0) return;
+      if (delta > 0 && totalCurrent >= 8) {
+        showToast('Máximo 8 entradas por reserva');
+        return;
+      }
+
+      ticketState[type] = newVal;
+      document.getElementById(`qty-${type}`).textContent = newVal;
+      updateTicketPreview();
+    }
+
+    function updateTicketPreview() {
+      const totalYen =
+        ticketState.adult * ticketPrices.adult +
+        ticketState.youth * ticketPrices.youth +
+        ticketState.child * ticketPrices.child;
+
+      const totalEur = (totalYen * 0.0062).toFixed(2).replace('.', ',');
+
+      document.getElementById('totalYen').textContent = `${totalYen.toLocaleString('es-ES')} ¥`;
+      document.getElementById('totalEur').textContent = `(~${totalEur} € aprox.)`;
+
+      const rawName = document.getElementById('visitorName').value.trim();
+      document.getElementById('previewName').textContent = rawName || 'Nombre del Titular';
+
+      const dateVal = document.getElementById('visitDate').value;
+      if (dateVal) {
+        const d = new Date(dateVal + 'T12:00:00');
+        document.getElementById('previewDate').textContent = d.toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+      }
+
+      const slotVal = document.getElementById('visitSlot').value;
+      document.getElementById('previewSlot').textContent = slotVal.split('(')[0].trim();
+
+      const parts = [];
+      if (ticketState.adult > 0) parts.push(`${ticketState.adult} Adulto${ticketState.adult > 1 ? 's' : ''}`);
+      if (ticketState.youth > 0) parts.push(`${ticketState.youth} Joven${ticketState.youth > 1 ? 'es' : ''}`);
+      if (ticketState.child > 0) parts.push(`${ticketState.child} Niño${ticketState.child > 1 ? 's' : ''}`);
+      if (ticketState.infant > 0) parts.push(`${ticketState.infant} Menor${ticketState.infant > 1 ? 'es' : ''}`);
+      document.getElementById('previewGuests').textContent = parts.length ? parts.join(', ') : 'Sin entradas';
+    }
+
+    function handleTicketSubmit(e) {
+      e.preventDefault();
+      const totalGuests = ticketState.adult + ticketState.youth + ticketState.child + ticketState.infant;
+      if (totalGuests === 0 || ticketState.adult === 0) {
+        showToast('Selecciona al menos 1 entrada de adulto');
+        return;
+      }
+
+      const randomCode = 'UJI-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.floor(10 + Math.random() * 89);
+      document.getElementById('previewCode').textContent = randomCode;
+
+      const badge = document.getElementById('ticketStatusBadge');
+      badge.textContent = 'Pase Confirmado';
+      badge.className = 'px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300';
+
+      document.getElementById('confirmationBanner').classList.remove('hidden');
+      showToast('Pase Digital emitido correctamente');
+
+      if (window.innerWidth < 1024) {
+        document.getElementById('digitalTicketCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function resetReservationForm() {
+      document.getElementById('ticketForm').reset();
+      ticketState.adult = 1;
+      ticketState.youth = 0;
+      ticketState.child = 0;
+      ticketState.infant = 0;
+      ['adult', 'youth', 'child', 'infant'].forEach(k => {
+        document.getElementById(`qty-${k}`).textContent = ticketState[k];
+      });
+      document.getElementById('previewCode').textContent = 'UJI-0000-00';
+      const badge = document.getElementById('ticketStatusBadge');
+      badge.textContent = 'Pendiente de emisión';
+      badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-300';
+      document.getElementById('confirmationBanner').classList.add('hidden');
+      initTickets();
+      showToast('Formulario restablecido');
+    }
+
+    // ---------------------------------------------------------
+    // 5. PREGUNTAS FRECUENTES (FAQ) INTERACTIVAS
+    // ---------------------------------------------------------
+    const faqData = [
+      {
+        category: 'entradas',
+        q: '¿Cómo funciona el sistema de reserva de entradas y sorteos?',
+        a: 'Las entradas para el Nintendo Museum no se venden en taquilla física. Se asignan mediante un sorteo gratuito con 3 meses de antelación (por ejemplo, en enero se sortean las entradas de abril) usando una Cuenta Nintendo. Si resultas ganador, dispones de un plazo para completar el pago. Posteriormente, las entradas canceladas o sobrantes se ponen a la venta directa por orden de llegada en el portal oficial.'
+      },
+      {
+        category: 'entradas',
+        q: '¿Es obligatorio tener una Cuenta Nintendo para reservar?',
+        a: 'Sí. Tanto para participar en el sorteo mensual como para adquirir entradas disponibles necesitas iniciar sesión con una Cuenta Nintendo gratuita. Además, puedes vincular tu personaje Mii para personalizar el diseño de tu pase de acceso.'
+      },
+      {
+        category: 'experiencia',
+        q: '¿Cómo funcionan las 10 monedas digitales incluidas en mi pase?',
+        a: 'Al entrar al museo recibirás un pase físico con chip NFC cargado con 10 monedas digitales por persona. Al acercarlo a los lectores de las 8 experiencias interactivas de la 1ª planta, se descuentan entre 1 y 4 monedas según el juego. No es posible comprar ni recargar monedas adicionales durante la visita.'
+      },
+      {
+        category: 'experiencia',
+        q: '¿Cuánto tiempo dura aproximadamente la visita completa?',
+        a: 'Aunque no hay límite de tiempo para permanecer dentro una vez accedes en tu franja horaria (hasta el cierre a las 18:00), la mayoría de visitantes dedica entre 2,5 y 4 horas para recorrer la galería histórica, gastar sus 10 monedas, comer en Hatena Burger y visitar la tienda Bonus Stage.'
+      },
+      {
+        category: 'normas',
+        q: '¿Se pueden hacer fotos y vídeos dentro del museo?',
+        a: 'Está permitido hacer fotografías en los exteriores (como la plaza de entrada con la tubería verde y las estatuas de Toad), en la 1ª planta de juegos interactivos y en la cafetería. Sin embargo, está estrictamente prohibido fotografiar o grabar en la 2ª planta (Galería Histórica).'
+      },
+      {
+        category: 'normas',
+        q: '¿Hay consignas (lockers) para dejar maletas o mochilas grandes?',
+        a: 'Sí, el museo cuenta con taquillas gratuitas con retorno de moneda (100 ¥) cerca de la entrada para mochilas y bolsos medianos. Sin embargo, no se permite acceder con maletas grandes de viaje (equipaje facturado); se recomienda dejarlas en las taquillas de la estación de Kioto.'
+      },
+      {
+        category: 'entradas',
+        q: '¿Puedo cambiar la fecha o cancelar mis entradas?',
+        a: 'Una vez emitidas y pagadas las entradas, no se admiten reembolsos por cancelación del usuario, aunque sí se permite modificar la franja horaria dentro del mismo día si existe disponibilidad de aforo antes de la fecha de visita.'
+      },
+      {
+        category: 'normas',
+        q: '¿El museo es accesible para sillas de ruedas y carritos de bebé?',
+        a: 'Totalmente. Todo el complejo cuenta con ascensores amplios, rampas, aseos accesibles y préstamos gratuitos de sillas de ruedas en recepción. Muchas de las atracciones interactivas de la 1ª planta también disponen de modos adaptados.'
+      }
+    ];
+
+    let activeFaqCat = 'all';
+
+    function setFaqCategory(cat) {
+      activeFaqCat = cat;
+      document.querySelectorAll('.faq-cat-btn').forEach(btn => {
+        const isSelected = btn.dataset.faqcat === cat;
+        if (isSelected) {
+          btn.classList.add('bg-nintendo-red', 'text-white', 'shadow-sm');
+          btn.classList.remove('bg-white', 'dark:bg-zinc-900', 'text-slate-700', 'dark:text-zinc-300', 'border', 'border-slate-200', 'dark:border-zinc-800');
+        } else {
+          btn.classList.remove('bg-nintendo-red', 'text-white', 'shadow-sm');
+          btn.classList.add('bg-white', 'dark:bg-zinc-900', 'text-slate-700', 'dark:text-zinc-300', 'border', 'border-slate-200', 'dark:border-zinc-800');
+        }
+      });
+      filterFaqs();
+    }
+
+    function filterFaqs() {
+      const query = document.getElementById('faqSearch').value.toLowerCase().trim();
+      const listContainer = document.getElementById('faqList');
+      const emptyState = document.getElementById('faqEmpty');
+
+      const filtered = faqData.filter(item => {
+        const matchesCat = activeFaqCat === 'all' || item.category === activeFaqCat;
+        const matchesText = item.q.toLowerCase().includes(query) || item.a.toLowerCase().includes(query);
+        return matchesCat && matchesText;
+      });
+
+      listContainer.innerHTML = '';
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 overflow-hidden transition-all';
+        card.innerHTML = `
+          <button type="button" onclick="toggleAccordion(this)" class="w-full px-6 py-4.5 text-left flex items-center justify-between gap-4 hover:bg-slate-50/80 dark:hover:bg-zinc-800/50 transition-colors">
+            <span class="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">${item.q}</span>
+            <span class="faq-arrow w-8 h-8 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 text-nintendo-red font-black transition-transform duration-200 ${idx === 0 ? 'rotate-180' : ''}">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </span>
+          </button>
+          <div class="faq-answer px-6 pb-5 text-sm text-slate-600 dark:text-zinc-300 leading-relaxed border-t border-slate-100 dark:border-zinc-800/80 pt-3.5 ${idx === 0 ? '' : 'hidden'}">
+            ${item.a}
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    function toggleAccordion(btn) {
+      const answer = btn.nextElementSibling;
+      const arrow = btn.querySelector('.faq-arrow');
+      const isHidden = answer.classList.contains('hidden');
+
+      if (isHidden) {
+        answer.classList.remove('hidden');
+        arrow.classList.add('rotate-180');
+      } else {
+        answer.classList.add('hidden');
+        arrow.classList.remove('rotate-180');
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 6. UTILIDADES (COPIAR DIRECCIÓN Y TOASTS)
+    // ---------------------------------------------------------
+    function copyAddress() {
+      const address = '56 Kaguraden, Ogura-cho, Uji-shi, Kyoto 611-0042, Japan';
+      const tempInput = document.createElement('input');
+      tempInput.value = address;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast('Dirección copiada al portapapeles');
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').textContent = msg;
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      navigateTo('inicio');
+      switchSubpage('galeria');
+      initTickets();
+      setFaqCategory('all');
+    });
+  </script>
+</body>
+</html>
